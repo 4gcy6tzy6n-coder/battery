@@ -1,0 +1,12 @@
+.venv/
+.python/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+.DS_Store
+data/raw/*
+!data/raw/.gitkeep
+data/manifests/*.json
+data/manifests/*.md
+data/manifests/*.csv

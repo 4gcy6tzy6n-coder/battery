@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: tristatelite
+Version: 0.1.0
+Summary: Lightweight probabilistic joint SOC, SOH, and TTE prediction
+Requires-Python: <3.13,>=3.11
+Requires-Dist: torch<3.0,>=2.2
+Requires-Dist: numpy<3.0,>=1.26
+Requires-Dist: pandas<3.0,>=2.2
+Requires-Dist: scipy<2.0,>=1.12
+Requires-Dist: pyarrow<25,>=15
+Requires-Dist: pyyaml<7,>=6
+Provides-Extra: dev
+Requires-Dist: pytest<10,>=8; extra == "dev"
+Requires-Dist: ruff<1.0,>=0.5; extra == "dev"

@@ -1,0 +1,10 @@
+torch<3.0,>=2.2
+numpy<3.0,>=1.26
+pandas<3.0,>=2.2
+scipy<2.0,>=1.12
+pyarrow<25,>=15
+pyyaml<7,>=6
+
+[dev]
+pytest<10,>=8
+ruff<1.0,>=0.5
