@@ -1,11 +1,12 @@
 # TriStateLite
 
 TriStateLite targets lightweight probabilistic joint prediction of battery SOC, SOH, and
-time-to-end-of-discharge. This repository is currently limited to Phase 1 data discovery.
+time-to-end-of-discharge. Phase 2A builds audited, leakage-safe data artifacts and stops before
+model, loss, training, and evaluation implementation.
 
-Phase 1 downloads the official NASA Randomized and Recommissioned Battery archive, records its
-provenance, inventories every ZIP member safely, and reports candidate schemas. It does not perform
-semantic battery parsing and must stop before labels, splits, windows, models, or training are built.
+Phase 1 downloads and inventories the official NASA Randomized and Recommissioned Battery archive.
+The executed source audit then fixes the Phase 2A semantics: maximal contiguous `mode == -1`
+discharges, causal 1 Hz sampling, positive discharge current, and physical-battery isolation.
 
 ## Development
 
@@ -16,6 +17,7 @@ python -m pip install -e '.[dev]'
 python -m pytest -q
 python scripts/download_nasa.py
 python scripts/inventory_nasa.py
+make phase2a-smoke
 ```
 
 For code quality, run:
@@ -24,5 +26,7 @@ For code quality, run:
 ruff check src tests scripts
 ```
 
-Stop here and review `data/manifests/nasa_schema_report.md`; do not build labels or train a model
-until the field mapping and cycle semantics are confirmed.
+The smoke target builds six batteries and three cycles per battery into
+`data/processed/nasa_randomized-smoke`. It writes partitioned Parquet samples, cycle summaries,
+split/scaler provenance, rejection reasons, a leakage audit, and a build report. See
+`docs/data_dictionary.md` and `docs/leakage_contract.md` for the enforceable contracts.

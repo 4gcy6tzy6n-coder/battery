@@ -58,7 +58,9 @@ def engineer_causal_features(samples: pd.DataFrame) -> pd.DataFrame:
         raise ValueError(f"missing feature-engineering columns: {sorted(missing)}")
     frames = [
         _engineer_cycle(cycle)
-        for _, cycle in samples.groupby(["battery_id", "cycle_id"], sort=True)
+        for _, cycle in samples.groupby(
+            ["battery_id", "cycle_id"], sort=True, observed=True
+        )
     ]
     return pd.concat(frames, ignore_index=True)
 
@@ -116,7 +118,9 @@ class BatteryWindowDataset(Dataset):
         self.history_length = history_length
         self._cycle_rows: dict[tuple[str, str], np.ndarray] = {}
         self._index: list[int] = []
-        for key, cycle in self.samples.groupby(["battery_id", "cycle_id"], sort=True):
+        for key, cycle in self.samples.groupby(
+            ["battery_id", "cycle_id"], sort=True, observed=True
+        ):
             rows = cycle.index.to_numpy()
             self._cycle_rows[(str(key[0]), str(key[1]))] = rows
             self._index.extend(rows[::stride].tolist())
