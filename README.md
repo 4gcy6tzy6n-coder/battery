@@ -14,5 +14,15 @@ python -m venv .venv
 source .venv/bin/activate
 python -m pip install -e '.[dev]'
 python -m pytest -q
+python scripts/download_nasa.py
+python scripts/inventory_nasa.py
+```
+
+For code quality, run:
+
+```bash
 ruff check src tests scripts
 ```
+
+Stop here and review `data/manifests/nasa_schema_report.md`; do not build labels or train a model
+until the field mapping and cycle semantics are confirmed.

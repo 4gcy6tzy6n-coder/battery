@@ -1,0 +1,654 @@
+{
+  "archive_path": "data/raw/battery_alt_dataset.zip",
+  "archive_bytes": 538163217,
+  "archive_sha256": "89209acddbad47506d781698fc51ebe9d7cdb8968667698f63e63aa730981d21",
+  "member_count": 66,
+  "total_compressed_bytes": 538144285,
+  "total_uncompressed_bytes": 3401432867,
+  "extensions": {
+    "": 4,
+    ".csv": 52,
+    ".txt": 10
+  },
+  "top_level": {
+    "__MACOSX": 35,
+    "battery_alt_dataset": 31
+  },
+  "filename_tokens": {
+    "alt": 99,
+    "batteries": 61,
+    "battery": 66,
+    "battery00": 2,
+    "battery01": 2,
+    "battery02": 2,
+    "battery03": 2,
+    "battery10": 2,
+    "battery11": 2,
+    "battery12": 2,
+    "battery13": 2,
+    "battery20": 2,
+    "battery21": 2,
+    "battery22": 2,
+    "battery23": 2,
+    "battery24": 2,
+    "battery25": 2,
+    "battery30": 2,
+    "battery31": 2,
+    "battery32": 2,
+    "battery33": 2,
+    "battery36": 2,
+    "battery40": 2,
+    "battery41": 2,
+    "battery50": 2,
+    "battery51": 2,
+    "battery52": 2,
+    "battery53": 2,
+    "battery54": 2,
+    "csv": 52,
+    "dataset": 66,
+    "license": 2,
+    "life": 9,
+    "macosx": 35,
+    "readme": 8,
+    "recommissioned": 19,
+    "regular": 33,
+    "second": 9,
+    "txt": 10
+  },
+  "members": [
+    {
+      "path": "__MACOSX/._battery_alt_dataset",
+      "suffix": "",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/._LICENSE.txt",
+      "suffix": ".txt",
+      "compressed_bytes": 174,
+      "uncompressed_bytes": 268,
+      "crc": 1846883746,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/._README.txt",
+      "suffix": ".txt",
+      "compressed_bytes": 177,
+      "uncompressed_bytes": 285,
+      "crc": 2401640143,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/._recommissioned_batteries",
+      "suffix": "",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/._regular_alt_batteries",
+      "suffix": "",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/._second_life_batteries",
+      "suffix": "",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/recommissioned_batteries/._README.txt",
+      "suffix": ".txt",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/recommissioned_batteries/._battery02.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/recommissioned_batteries/._battery03.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/recommissioned_batteries/._battery12.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/recommissioned_batteries/._battery24.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/recommissioned_batteries/._battery25.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/recommissioned_batteries/._battery32.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/recommissioned_batteries/._battery33.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/recommissioned_batteries/._battery53.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._README.txt",
+      "suffix": ".txt",
+      "compressed_bytes": 173,
+      "uncompressed_bytes": 268,
+      "crc": 645870871,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery00.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery01.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery10.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery11.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery20.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery21.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery22.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery23.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery30.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery31.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery40.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery41.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery50.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery51.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/regular_alt_batteries/._battery52.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/second_life_batteries/._README.txt",
+      "suffix": ".txt",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/second_life_batteries/._battery13.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/second_life_batteries/._battery36.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "__MACOSX/battery_alt_dataset/second_life_batteries/._battery54.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 132,
+      "uncompressed_bytes": 212,
+      "crc": 2982751267,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/LICENSE.txt",
+      "suffix": ".txt",
+      "compressed_bytes": 628,
+      "uncompressed_bytes": 1066,
+      "crc": 1272181001,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/README.txt",
+      "suffix": ".txt",
+      "compressed_bytes": 1233,
+      "uncompressed_bytes": 3226,
+      "crc": 2041829082,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/recommissioned_batteries/README.txt",
+      "suffix": ".txt",
+      "compressed_bytes": 426,
+      "uncompressed_bytes": 1049,
+      "crc": 2540968176,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/recommissioned_batteries/battery02.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 20806055,
+      "uncompressed_bytes": 129284701,
+      "crc": 2055613282,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/recommissioned_batteries/battery03.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 22469085,
+      "uncompressed_bytes": 139015708,
+      "crc": 834548687,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/recommissioned_batteries/battery12.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 33020297,
+      "uncompressed_bytes": 207850262,
+      "crc": 685037180,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/recommissioned_batteries/battery24.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 33543355,
+      "uncompressed_bytes": 209047971,
+      "crc": 237078678,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/recommissioned_batteries/battery25.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 22632871,
+      "uncompressed_bytes": 141939272,
+      "crc": 1956132412,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/recommissioned_batteries/battery32.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 17814238,
+      "uncompressed_bytes": 110525622,
+      "crc": 2492071016,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/recommissioned_batteries/battery33.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 23489281,
+      "uncompressed_bytes": 147433142,
+      "crc": 4283951293,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/recommissioned_batteries/battery53.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 11225764,
+      "uncompressed_bytes": 70592469,
+      "crc": 3228888885,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/README.txt",
+      "suffix": ".txt",
+      "compressed_bytes": 571,
+      "uncompressed_bytes": 1327,
+      "crc": 438739931,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery00.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 10362755,
+      "uncompressed_bytes": 67604624,
+      "crc": 679321170,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery01.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 50840514,
+      "uncompressed_bytes": 322570152,
+      "crc": 715049321,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery10.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 8534183,
+      "uncompressed_bytes": 55478464,
+      "crc": 1738301145,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery11.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 50161903,
+      "uncompressed_bytes": 317704470,
+      "crc": 3320025859,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery20.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 1866081,
+      "uncompressed_bytes": 12386336,
+      "crc": 3837811829,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery21.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 4461520,
+      "uncompressed_bytes": 26143776,
+      "crc": 2911119999,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery22.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 26460484,
+      "uncompressed_bytes": 172871662,
+      "crc": 2486539929,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery23.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 13289680,
+      "uncompressed_bytes": 83642410,
+      "crc": 3305451817,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery30.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 5239642,
+      "uncompressed_bytes": 35773819,
+      "crc": 2818090093,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery31.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 32430181,
+      "uncompressed_bytes": 209621575,
+      "crc": 3003053573,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery40.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 6881603,
+      "uncompressed_bytes": 45316756,
+      "crc": 85885995,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery41.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 27025207,
+      "uncompressed_bytes": 180906749,
+      "crc": 2365780188,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery50.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 7636660,
+      "uncompressed_bytes": 48817789,
+      "crc": 213025148,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery51.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 18194770,
+      "uncompressed_bytes": 116587113,
+      "crc": 2188356114,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/regular_alt_batteries/battery52.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 14880847,
+      "uncompressed_bytes": 94338955,
+      "crc": 4226150464,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/second_life_batteries/README.txt",
+      "suffix": ".txt",
+      "compressed_bytes": 393,
+      "uncompressed_bytes": 828,
+      "crc": 398454535,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/second_life_batteries/battery13.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 17635214,
+      "uncompressed_bytes": 109056812,
+      "crc": 941214299,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/second_life_batteries/battery36.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 36423099,
+      "uncompressed_bytes": 218643697,
+      "crc": 1193946093,
+      "is_encrypted": false,
+      "unsafe_path": false
+    },
+    {
+      "path": "battery_alt_dataset/second_life_batteries/battery54.csv",
+      "suffix": ".csv",
+      "compressed_bytes": 20810997,
+      "uncompressed_bytes": 128263460,
+      "crc": 412525278,
+      "is_encrypted": false,
+      "unsafe_path": false
+    }
+  ]
+}

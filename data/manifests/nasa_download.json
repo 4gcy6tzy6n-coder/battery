@@ -1,0 +1,7 @@
+{
+  "source_url": "https://data.nasa.gov/docs/legacy/battery_alt_dataset.zip",
+  "path": "data/raw/battery_alt_dataset.zip",
+  "bytes": 538163217,
+  "sha256": "89209acddbad47506d781698fc51ebe9d7cdb8968667698f63e63aa730981d21",
+  "downloaded_at_utc": "2026-08-05T14:57:32.503455+00:00"
+}
