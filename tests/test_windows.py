@@ -36,15 +36,27 @@ def test_engineered_features_are_invariant_to_future_changes():
     engineered = [
         "voltage_delta_1s",
         "current_delta_1s",
+        "temperature_delta_1s",
         "current_mean_10s",
         "current_std_10s",
-        "current_mean_60s",
+        "i_eff_60s",
         "current_cv_60s",
         "voltage_slope_30s",
         "temperature_slope_60s",
     ]
 
     pd.testing.assert_frame_equal(first.loc[:100, engineered], second.loc[:100, engineered])
+
+
+def test_effective_current_and_variability_retain_physical_units():
+    samples = _series()
+    samples["current_a"] = 2.5
+
+    features = engineer_causal_features(samples)
+
+    assert features.loc[59:, "i_eff_60s"].eq(2.5).all()
+    assert features.loc[59:, "current_cv_60s"].eq(0.0).all()
+    np.testing.assert_allclose(features.loc[1:, "temperature_delta_1s"], 0.02)
 
 
 def _window_frames():

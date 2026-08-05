@@ -21,6 +21,23 @@ SUMMARY_FEATURES = (
     "voltage_slope_v_per_s",
 )
 
+MODEL_CONTINUOUS_FEATURES = (
+    "voltage_v",
+    "current_a",
+    "temperature_c",
+    "voltage_delta_1s",
+    "current_delta_1s",
+    "temperature_delta_1s",
+    "current_mean_10s",
+    "current_std_10s",
+    "i_eff_60s",
+    "voltage_slope_30s",
+    "temperature_slope_60s",
+)
+MODEL_FEATURES = tuple(f"{name}__scaled" for name in MODEL_CONTINUOUS_FEATURES) + (
+    "temperature_available",
+)
+
 
 def _causal_slope(values: pd.Series, time: pd.Series, period: int) -> pd.Series:
     elapsed = time - time.shift(period - 1)
@@ -31,14 +48,16 @@ def _engineer_cycle(cycle: pd.DataFrame) -> pd.DataFrame:
     result = cycle.sort_values("timestamp_s").copy()
     result["voltage_delta_1s"] = result["voltage_v"].diff().fillna(0.0)
     result["current_delta_1s"] = result["current_a"].diff().fillna(0.0)
+    result["temperature_delta_1s"] = result["temperature_c"].diff().fillna(0.0)
     result["current_mean_10s"] = result["current_a"].rolling(10, min_periods=1).mean()
     result["current_std_10s"] = (
         result["current_a"].rolling(10, min_periods=1).std(ddof=0).fillna(0.0)
     )
-    result["current_mean_60s"] = result["current_a"].rolling(60, min_periods=1).mean()
+    result["i_eff_60s"] = result["current_a"].rolling(60, min_periods=1).mean()
     current_std_60s = result["current_a"].rolling(60, min_periods=1).std(ddof=0)
-    denominator = result["current_mean_60s"].abs().clip(lower=1e-6)
-    result["current_cv_60s"] = (current_std_60s / denominator).fillna(0.0)
+    result["current_cv_60s"] = (
+        current_std_60s / (result["i_eff_60s"].abs() + 1e-3)
+    ).fillna(0.0)
     result["voltage_slope_30s"] = _causal_slope(
         result["voltage_v"], result["elapsed_s"], 30
     ).fillna(0.0)
