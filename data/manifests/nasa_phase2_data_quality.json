@@ -1,0 +1,58 @@
+{
+  "archive": "data/raw/battery_alt_dataset.zip",
+  "battery_count": 26,
+  "row_count": 53529296,
+  "discharge_run_count": 9927,
+  "valid_discharge_run_count": 9612,
+  "all_batteries_have_three_valid_discharges": true,
+  "all_batteries_have_three_valid_reference_discharges": false,
+  "time_reset_count": 0,
+  "max_discharge_current_null_rate": 0.0,
+  "max_discharge_voltage_null_rate": 0.0,
+  "max_temperature_battery_invalid_rate": 0.0002293593340878195,
+  "invalid_value_examples": {
+    "battery03:temperature_battery": [
+      "  NAN"
+    ],
+    "battery22:temperature_battery": [
+      "  NAN"
+    ],
+    "battery30:temperature_battery": [
+      "  NAN"
+    ]
+  },
+  "median_sample_interval_s_range": [
+    0.9459999999999127,
+    0.9760000000005675
+  ],
+  "mode_counts": {
+    "1.0": 26345098,
+    "0.0": 19822183,
+    "-1.0": 7362015
+  },
+  "mission_counts": {
+    "missing": 46167281,
+    "1.0": 5954568,
+    "0.0": 1407447
+  },
+  "mission_summary": {
+    "0": {
+      "runs": 496,
+      "valid_runs": 481,
+      "duration_median_s": 2925.5765000001993,
+      "capacity_median_ah": 2.047697768402948,
+      "capacity_min_ah": 0.00025666666666666665,
+      "capacity_max_ah": 2.492232503194444,
+      "voltage_drop_median_v": 3.3810000000000002
+    },
+    "1": {
+      "runs": 9431,
+      "valid_runs": 9131,
+      "duration_median_s": 594.8060000000987,
+      "capacity_median_ah": 2.0397249935751596,
+      "capacity_min_ah": 0.0,
+      "capacity_max_ah": 2.4860757002810354,
+      "voltage_drop_median_v": 3.5890000000000004
+    }
+  }
+}
