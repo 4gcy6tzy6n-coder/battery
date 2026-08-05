@@ -1,0 +1,20 @@
+archive_sha256: 89209acddbad47506d781698fc51ebe9d7cdb8968667698f63e63aa730981d21
+member_pattern: battery_alt_dataset/*/battery[0-9][0-9].csv
+battery_id_source: filename_stem
+group_source: parent_directory
+fields:
+  start_time: start_time
+  time_s: time
+  mode: mode
+  voltage_v: voltage_load
+  current_a: current_load
+  temperature_c: temperature_battery
+  mission_type: mission_type
+mode_map: {-1: discharge, 0: rest, 1: charge}
+cycle_rule: maximal_contiguous_discharge_mode
+resample_hz: 1
+max_forward_fill_s: 5
+minimum_duration_s: 60
+minimum_samples: 50
+minimum_valid_voltage_v: 1.0
+current_sign: discharge_positive
