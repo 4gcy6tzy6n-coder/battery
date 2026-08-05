@@ -8,6 +8,7 @@ __pycache__/
 .DS_Store
 data/raw/*
 !data/raw/.gitkeep
+data/processed/
 data/manifests/*.json
 data/manifests/*.md
 data/manifests/*.csv
