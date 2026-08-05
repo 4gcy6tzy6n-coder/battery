@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 *.pyc
+*.egg-info/
 .DS_Store
 data/raw/*
 !data/raw/.gitkeep
