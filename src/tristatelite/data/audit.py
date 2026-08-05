@@ -12,6 +12,7 @@ def audit_leakage(
     samples: pd.DataFrame,
     history: pd.DataFrame,
     scaler_fit_batteries: set[str],
+    model_feature_names: list[str] | None = None,
 ) -> dict[str, object]:
     """Raise on a leakage-contract violation and return JSON-safe evidence."""
     split_sets = {
@@ -59,6 +60,15 @@ def audit_leakage(
     if unsafe_columns:
         raise ValueError(f"forbidden history feature names: {unsafe_columns}")
 
+    model_features = model_feature_names or []
+    unsafe_model_features = [
+        name
+        for name in model_features
+        if name == "q_ref_ah" or any(token in name for token in forbidden)
+    ]
+    if unsafe_model_features:
+        raise ValueError(f"forbidden model feature names: {unsafe_model_features}")
+
     return {
         "status": "passed",
         "battery_overlap_count": 0,
@@ -68,4 +78,5 @@ def audit_leakage(
         "scaler_fitted_batteries": sorted(scaler_fit_batteries),
         "sample_count": len(samples),
         "history_row_count": len(history),
+        "model_feature_count": len(model_features),
     }

@@ -8,6 +8,7 @@ import tempfile
 from dataclasses import asdict
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from tristatelite.config import config_hash, load_yaml
@@ -21,9 +22,13 @@ from tristatelite.data.nasa_adapter import (
 )
 from tristatelite.data.scaling import fit_scaler, transform_features
 from tristatelite.data.split import make_group_split
-from tristatelite.data.windows import SUMMARY_FEATURES, engineer_causal_features
+from tristatelite.data.windows import (
+    MODEL_CONTINUOUS_FEATURES,
+    MODEL_FEATURES,
+    SUMMARY_FEATURES,
+    engineer_causal_features,
+)
 
-SCALED_FEATURES = ["voltage_v", "current_a", "temperature_c"]
 REJECTION_COLUMNS = [
     "battery_id",
     "cycle_index",
@@ -37,6 +42,17 @@ REJECTION_COLUMNS = [
 
 def _write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _ranges(frame: pd.DataFrame, columns: tuple[str, ...]) -> dict[str, dict[str, float]]:
+    ranges: dict[str, dict[str, float]] = {}
+    for name in columns:
+        values = pd.to_numeric(frame[name], errors="coerce").to_numpy(dtype=float)
+        finite = values[np.isfinite(values)]
+        if len(finite) == 0:
+            raise ValueError(f"range source has no finite values: {name}")
+        ranges[name] = {"min": float(finite.min()), "max": float(finite.max())}
+    return ranges
 
 
 def _history_links(summaries: pd.DataFrame) -> pd.DataFrame:
@@ -119,15 +135,18 @@ def build_dataset(
     }
     samples["split"] = samples["battery_id"].map(assignment)
     summaries["split"] = summaries["battery_id"].map(assignment)
-    scaler = fit_scaler(samples[samples["split"] == "train"], SCALED_FEATURES)
-    samples = transform_features(samples, scaler)
     samples = engineer_causal_features(samples)
+    scaler = fit_scaler(
+        samples[samples["split"] == "train"], list(MODEL_CONTINUOUS_FEATURES)
+    )
+    samples = transform_features(samples, scaler, output_suffix="__scaled")
     history = _history_links(summaries)
     audit = audit_leakage(
         manifest,
         samples,
         history,
         set(scaler["fitted_battery_ids"]),
+        model_feature_names=list(MODEL_FEATURES),
     )
     report = {
         "status": "complete",
@@ -142,6 +161,13 @@ def build_dataset(
         "sample_count": len(samples),
         "limit_batteries": limit_batteries,
         "limit_cycles": limit_cycles,
+        "physical_ranges": _ranges(
+            samples, ("current_a", "i_eff_60s", "current_cv_60s", "q_ref_ah")
+        ),
+        "scaled_feature_ranges": _ranges(
+            samples,
+            tuple(f"{name}__scaled" for name in MODEL_CONTINUOUS_FEATURES),
+        ),
     }
 
     output = output.resolve()

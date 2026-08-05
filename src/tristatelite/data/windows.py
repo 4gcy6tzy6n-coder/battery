@@ -37,6 +37,7 @@ MODEL_CONTINUOUS_FEATURES = (
 MODEL_FEATURES = tuple(f"{name}__scaled" for name in MODEL_CONTINUOUS_FEATURES) + (
     "temperature_available",
 )
+PHYSICS_FEATURES = ("i_eff_60s", "current_cv_60s", "q_ref_ah")
 
 
 def _causal_slope(values: pd.Series, time: pd.Series, period: int) -> pd.Series:
@@ -124,6 +125,9 @@ class BatteryWindowDataset(Dataset):
         unsafe = [name for name in feature_names if "target" in name or name == "q_ref_ah"]
         if unsafe:
             raise ValueError(f"target-derived fast features are forbidden: {unsafe}")
+        missing_physics = set(PHYSICS_FEATURES) - set(samples)
+        if missing_physics:
+            raise ValueError(f"missing physics columns: {sorted(missing_physics)}")
         selected = set(battery_ids)
         self.samples = (
             samples[samples["battery_id"].isin(selected)]
@@ -185,10 +189,9 @@ class BatteryWindowDataset(Dataset):
             [row["soc_target"], row["soh_target"], row["log_tte_target"]],
             dtype=torch.float32,
         )
-        physics = torch.tensor(
-            [row["voltage_v"], row["current_a"], row["elapsed_s"], row["q_ref_ah"]],
-            dtype=torch.float32,
-        )
+        physics = {
+            name: torch.tensor(row[name], dtype=torch.float32) for name in PHYSICS_FEATURES
+        }
         return {
             "fast_x": fast_x,
             "fast_mask": fast_mask,

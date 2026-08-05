@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from tristatelite.data.windows import (
+    MODEL_FEATURES,
     BatteryWindowDataset,
     cache_identity,
     engineer_causal_features,
@@ -77,6 +78,8 @@ def _window_frames():
                     "tte_seconds": float(4 - elapsed),
                     "log_tte_target": np.log1p(4 - elapsed),
                     "q_ref_ah": 1.0,
+                    "i_eff_60s": 1.0,
+                    "current_cv_60s": 0.0,
                 }
             )
     summaries = pd.DataFrame(
@@ -115,6 +118,9 @@ def test_windows_left_pad_and_history_contains_only_completed_earlier_cycles():
     assert first["fast_mask"].tolist() == [False, False, False, True]
     assert first["fast_x"].shape == (4, 2)
     assert first["slow_mask"].tolist() == [False, False]
+    assert set(first["physics"]) == {"i_eff_60s", "current_cv_60s", "q_ref_ah"}
+    assert first["physics"]["i_eff_60s"].item() == 1.0
+    assert first["physics"]["q_ref_ah"].item() == 1.0
     cycle_one_start = dataset[3]
     assert cycle_one_start["slow_mask"].tolist() == [False, True]
     assert cycle_one_start["metadata"]["cycle_index"] == 1
@@ -130,6 +136,24 @@ def test_windows_left_pad_and_history_contains_only_completed_earlier_cycles():
         stride=1,
     )
     assert len(evaluation) == 10
+
+
+def test_window_dataset_rejects_a_missing_physics_column():
+    samples, summaries = _window_frames()
+
+    with np.testing.assert_raises_regex(ValueError, "physics columns"):
+        BatteryWindowDataset(
+            samples.drop(columns="i_eff_60s"),
+            summaries,
+            ["battery00"],
+            ["voltage_v", "current_a"],
+        )
+
+
+def test_default_model_features_are_scaled_or_boolean():
+    assert len(MODEL_FEATURES) == 12
+    assert all(name.endswith("__scaled") for name in MODEL_FEATURES[:-1])
+    assert MODEL_FEATURES[-1] == "temperature_available"
 
 
 def test_cache_identity_covers_every_material_input():
