@@ -147,12 +147,17 @@ def evaluate_state(
     target: np.ndarray,
     levels: np.ndarray = QUANTILES,
 ) -> dict[str, float]:
-    """Compute the full metric bundle for one predicted state."""
+    """Compute the full metric bundle for one predicted state.
+
+    The 90% interval uses the outer levels; the median is the middle level.
+    All indices are derived from ``levels`` so arbitrary quantile counts work.
+    """
     pred, _ = _as_quantiles(pred_q, levels)
     tgt = _as_1d(target, "target")
     if pred.shape[0] != tgt.shape[0]:
         raise ValueError("prediction and target must share the first dimension")
-    lower, median, upper = pred[:, 0], pred[:, 1], pred[:, 2]
+    median_index = (len(levels) - 1) // 2
+    lower, median, upper = pred[:, 0], pred[:, median_index], pred[:, -1]
     mae, rmse, rrmse = mae_rmse(median, tgt)
     return {
         "pinball": pinball_mean(pred, tgt, levels),

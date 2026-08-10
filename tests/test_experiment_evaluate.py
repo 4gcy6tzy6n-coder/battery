@@ -149,6 +149,22 @@ def test_physical_consistency_inactive_rows_are_excluded() -> None:
 # --- Validation -------------------------------------------------------------
 
 
+def test_evaluate_state_uses_median_and_outer_levels_for_19_quantiles() -> None:
+    """With 19 levels, median must be column 9 and the 90% interval the outer pair."""
+    rng = np.random.default_rng(5)
+    n = 20_000
+    target = rng.normal(loc=0.5, scale=0.2, size=n)
+    # Perfect quantile forecast: columns are the empirical quantiles of the target.
+    levels = DENSE_LEVELS
+    quantiles = np.quantile(target, levels)
+    pred = np.tile(quantiles[None, :], (n, 1))
+    bundle = evaluate.evaluate_state(pred, target, levels)
+    assert bundle["picp_90"] == pytest.approx(0.90, abs=0.01)  # outer 0.05/0.95 pair
+    assert bundle["ece"] < 0.01
+    # Median column (index 9) equals the empirical median of the target.
+    assert pred[0, 9] == pytest.approx(np.median(target), rel=0.05)
+
+
 @pytest.mark.parametrize(
     "fn, kwargs",
     [
