@@ -1,0 +1,39 @@
+# TriStateLite 论文研究进展日志
+
+> 记录实验阶段的关键决策、发现与核实结果，供 F 阶段论文整理使用。
+
+## 时间线（2026-08-10）
+
+- **调研**：两轮 WebSearch 文献调研，确定新颖性定位（联合概率+物理一致性，无直接先例）。见 `paper_research_plan.md`。
+- **数据**：全量数据集构建完成——26 电池（15 regular/8 recommissioned/3 second-life）、9,612 循环、7,419,858 样本、SOH 范围 0.096–1.106。split_id `3203055542a02c9d`。
+- **物理公式核实**：`soc·soh·q_ref/i_eff·3600` 与真实 TTE 中位相对误差 0.31%（2026-08-10 独立验证）。
+- **基础设施**：PreparedWindowDataset（numpy 预计算，batch 取数 1.2ms vs pandas 1332ms）、TriStateLiteNet（GRU+3 有序头，mask-exact packing）、训练/评估/复核/图表/校准全链路。127 测试全绿。
+- **指标验证**：CRPS 用 `2×梯形积分`，与独立逐锚点 MC 采样交叉验证一致（soc 0.3%/soh 2.2%/log_tte 6.2%，log_tte 偏差为重型尾部分布的方法性差异）。pinball/PICP/PINAW/ECE 直接重算 0% 偏差。
+- **确定性**：同配置+seed 跑两次，91 个标量指标零差异。CPU 训练完全可复现。
+
+## 关键科学发现
+
+### 校准模式（main seed0 实测）
+- **soc/soh 欠分散**（区间过窄）：q50 经验覆盖 30%/9%（名义 50%）；PICP90 0.78/0.81
+- **log_tte 过分散**（区间过宽）：q05 经验覆盖 25%（名义 5%）；PICP90 0.73
+- **归因**：目标缩放权重 `w=1/mean|target|`（soc×2, soh×1.7, tte×0.37）导致模型优先拟合 soc/soh → 窄区间，log_tte 权重低 → 宽区间
+- **对策**：per-state 经验分位重校准（`src/tristatelite/experiments/calibration.py`，共形风格，val 拟合 + test 应用）。合成验证 PICP 从 0.59→0.82 恢复。
+
+### 物理一致性（H4 待对比确认）
+- main seed0 physics error = 0.37（log1p 单位）。待与 noPhysics 对比判断物理损失是否改善自洽性。
+
+### Per-battery 异质性
+- battery54（second_life）log_tte CRPS 0.225 vs 其他 test 电池 ~0.06——跨电池组泛化差异是论文要点。
+
+## 实验矩阵状态
+
+- 配置：main（TST）、ablation_nophysics、ablation_unordered、ablation_fixedweight、baseline_point、baseline_mcdropout
+- 预算：pool 100k、max_epochs 50、early_stop patience 6、batch 64、GRU(2层,64h)、19 分位数
+- 并行：2 worker × 3 线程（5 worker 因内存交换失效，2 worker 健康 ~2.5min/epoch）
+- 预计 ~14h 完成 18 runs；完成后：复核每个 run → 聚合 → 假设检验 → 决定重校准重跑
+
+## 待决
+
+- [ ] H1-H4 假设检验结果
+- [ ] 是否重跑关键配置（带 checkpoint）做重校准最终数字
+- [ ] 论文结果表/图/主张核对
