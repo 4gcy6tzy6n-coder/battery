@@ -198,8 +198,14 @@ def evaluate_dataset(
     dataset: PreparedWindowDataset,
     cfg: ExperimentConfig,
     device: torch.device,
+    return_raw: bool = False,
 ) -> dict[str, object]:
-    """Collect predictions over all anchors and return the full metric bundle."""
+    """Collect predictions over all anchors and return the full metric bundle.
+
+    With ``return_raw=True`` the returned dict additionally carries
+    ``raw_pred``, ``raw_targets``, ``raw_physics``, and ``raw_meta`` arrays so
+    results can be independently re-verified and plotted.
+    """
     model.eval()
     rng = np.random.default_rng(cfg.seed)
     state_pred: dict[str, list[np.ndarray]] = {name: [] for name in STATE_NAMES}
@@ -306,6 +312,23 @@ def evaluate_dataset(
         per_battery[bid] = row
     results["per_battery"] = per_battery
     results["anchor_count"] = len(targets)
+
+    if return_raw:
+        raw_pred: dict[str, np.ndarray] = {}
+        for name in STATE_NAMES:
+            pred = np.concatenate(state_pred[name])
+            if model.requires_quantile_sort:
+                pred = np.sort(pred, axis=1)
+            raw_pred[name] = pred
+        results["raw_pred"] = raw_pred
+        results["raw_targets"] = targets
+        results["raw_physics"] = physics
+        results["raw_meta"] = {
+            "battery_id": np.asarray(battery_ids, dtype=object),
+            "cycle_id": np.asarray([str(m["cycle_id"]) for m in meta], dtype=object),
+            "cycle_index": np.asarray([int(m["cycle_index"]) for m in meta]),
+            "timestamp_s": np.asarray([float(m["timestamp_s"]) for m in meta]),
+        }
     return results
 
 
@@ -367,7 +390,15 @@ def run_experiment(cfg: ExperimentConfig, out_dir: str | Path) -> dict[str, obje
 
     if best_state is not None:
         model.load_state_dict(best_state)
-    test_results = evaluate_dataset(model, test_ds, cfg, device)
+    test_results = evaluate_dataset(model, test_ds, cfg, device, return_raw=True)
+    np.savez(
+        out / "test_predictions.npz",
+        **{f"pred_{name}": test_results["raw_pred"][name] for name in STATE_NAMES},
+        targets=test_results["raw_targets"],
+        physics=test_results["raw_physics"],
+        **{f"meta_{key}": value for key, value in test_results["raw_meta"].items()},
+    )
+    del test_results["raw_pred"], test_results["raw_targets"], test_results["raw_physics"], test_results["raw_meta"]
 
     report = {
         "config": cfg.config_hash(),
