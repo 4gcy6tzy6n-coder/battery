@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
 
 STATE_METRICS = ("pinball", "crps", "mae", "rmse", "picp_90", "pinaw_90", "ece")
+_SEED_DIR = re.compile(r"^seed(\d+)$")
 
 
 def load_runs(root: Path) -> dict[str, list[dict[str, object]]]:
@@ -19,6 +21,8 @@ def load_runs(root: Path) -> dict[str, list[dict[str, object]]]:
         if not config_dir.is_dir():
             continue
         for seed_dir in sorted(config_dir.iterdir()):
+            if not seed_dir.is_dir() or not _SEED_DIR.match(seed_dir.name):
+                continue
             results_path = seed_dir / "results.json"
             if results_path.exists():
                 runs[config_dir.name].append(
