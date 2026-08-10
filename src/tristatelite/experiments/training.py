@@ -168,8 +168,12 @@ def compute_loss(
 
     if cfg.physics_weight > 0:
         physics = batch["physics"]
+        soc_median = soc[:, median_index]
+        if cfg.physics_detach_soc:
+            # Avoid distorting the fast SOC state: no physics gradient into soc.
+            soc_median = soc_median.detach()
         phys, _ = physics_consistency_loss(
-            soc[:, median_index],
+            soc_median,
             soh[:, median_index],
             tte[:, median_index],
             torch.as_tensor(physics["q_ref_ah"], device=device),

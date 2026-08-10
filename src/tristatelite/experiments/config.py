@@ -45,6 +45,7 @@ class ExperimentConfig:
     # Loss
     physics_weight: float = 0.1
     cv_weighted: bool = True
+    physics_detach_soc: bool = False
     normalize_by_target_scale: bool = True
 
     # Inference
