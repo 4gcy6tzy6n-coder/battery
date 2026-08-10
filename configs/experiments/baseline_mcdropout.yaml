@@ -25,5 +25,5 @@ physics_weight: 0.1
 cv_weighted: true
 normalize_by_target_scale: true
 
-mc_samples: 30
-eval_batch_size: 256
+mc_samples: 10
+eval_batch_size: 512
