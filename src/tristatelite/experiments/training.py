@@ -146,16 +146,14 @@ def compute_loss(
     )
     targets = torch.as_tensor(batch["targets"], device=device)
     components: dict[str, torch.Tensor] = {}
+    scale_weights = scales if cfg.normalize_by_target_scale else torch.ones_like(scales)
     if model.head_mode == "point":
-        target_soc = targets[:, 0]
-        target_soh = targets[:, 1]
-        target_tte = targets[:, 2]
-        mse_soc = torch.mean((soc[:, 0] - target_soc) ** 2)
-        mse_soh = torch.mean((soh[:, 0] - target_soh) ** 2)
-        mse_tte = torch.mean((tte[:, 0] - target_tte) ** 2)
-        components["soc"] = mse_soc * scales[0]
-        components["soh"] = mse_soh * scales[1]
-        components["tte"] = mse_tte * scales[2]
+        mse_soc = torch.mean((soc[:, 0] - targets[:, 0]) ** 2)
+        mse_soh = torch.mean((soh[:, 0] - targets[:, 1]) ** 2)
+        mse_tte = torch.mean((tte[:, 0] - targets[:, 2]) ** 2)
+        components["soc"] = mse_soc * scale_weights[0]
+        components["soh"] = mse_soh * scale_weights[1]
+        components["tte"] = mse_tte * scale_weights[2]
         total = components["soc"] + components["soh"] + components["tte"]
         return total, components
 
@@ -163,9 +161,9 @@ def compute_loss(
     levels = torch.tensor(
         quantile_levels(model.num_quantiles), dtype=torch.float32, device=device
     )
-    components["soc"] = _pinball_per_state(soc, targets[:, 0], scales[0], levels)
-    components["soh"] = _pinball_per_state(soh, targets[:, 1], scales[1], levels)
-    components["tte"] = _pinball_per_state(tte, targets[:, 2], scales[2], levels)
+    components["soc"] = _pinball_per_state(soc, targets[:, 0], scale_weights[0], levels)
+    components["soh"] = _pinball_per_state(soh, targets[:, 1], scale_weights[1], levels)
+    components["tte"] = _pinball_per_state(tte, targets[:, 2], scale_weights[2], levels)
     total = components["soc"] + components["soh"] + components["tte"]
 
     if cfg.physics_weight > 0:
