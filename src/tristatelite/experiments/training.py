@@ -371,10 +371,18 @@ def run_experiment(cfg: ExperimentConfig, out_dir: str | Path) -> dict[str, obje
         if model.head_mode == "point":
             val_score = float(val_metrics["log_tte"]["mae"])
             history.append({"epoch": epoch, "train_loss": train_loss, "val_log_tte_mae": val_score})
+            print(
+                f"epoch {epoch} train={train_loss:.4f} val_log_tte_mae={val_score:.4f}",
+                flush=True,
+            )
         else:
             val_score = float(val_metrics["log_tte"]["pinball"])
             history.append(
                 {"epoch": epoch, "train_loss": train_loss, "val_log_tte_pinball": val_score}
+            )
+            print(
+                f"epoch {epoch} train={train_loss:.4f} val_log_tte_pinball={val_score:.4f}",
+                flush=True,
             )
         scheduler.step(val_score)
         if val_score < best_val:
@@ -388,6 +396,10 @@ def run_experiment(cfg: ExperimentConfig, out_dir: str | Path) -> dict[str, obje
 
     if best_state is not None:
         model.load_state_dict(best_state)
+    torch.save(
+        {"state_dict": best_state, "config_hash": cfg.config_hash(), "seed": cfg.seed},
+        out / "best_model.pt",
+    )
     test_results = evaluate_dataset(model, test_ds, cfg, device, return_raw=True)
     np.savez(
         out / "test_predictions.npz",
