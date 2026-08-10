@@ -15,12 +15,19 @@ def physics_consistency_loss(
     *,
     minimum_current_a: float = 0.05,
     maximum_tte_s: float = 604800.0,
+    cv_decay: float = 2.0,
 ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
-    """Compare predicted log-TTE with a stable-load capacity estimate."""
+    """Compare predicted log-TTE with a stable-load capacity estimate.
+
+    ``cv_decay`` scales the current-variability weight
+    ``exp(-cv_decay * clamp(cv, 0))``; set it to ``0.0`` for a uniform weight.
+    """
     if minimum_current_a <= 0:
         raise ValueError("minimum_current_a must be positive")
     if maximum_tte_s <= 0:
         raise ValueError("maximum_tte_s must be positive")
+    if cv_decay < 0:
+        raise ValueError("cv_decay must be non-negative")
 
     inputs = (
         soc_median,
@@ -52,7 +59,7 @@ def physics_consistency_loss(
     physical_tte_s = (safe_soc * safe_soh * safe_q_ref / safe_current * 3600.0).clamp(
         min=0.0, max=maximum_tte_s
     )
-    weight = torch.exp(-2.0 * safe_cv.clamp_min(0.0))
+    weight = torch.exp(-cv_decay * safe_cv.clamp_min(0.0))
     error = torch.abs(predicted - torch.log1p(physical_tte_s))
     denominator = active.sum().clamp_min(1).to(dtype=dtype)
     loss = torch.where(active, weight * error, zero).sum() / denominator
