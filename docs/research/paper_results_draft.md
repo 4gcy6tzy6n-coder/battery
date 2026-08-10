@@ -1,7 +1,29 @@
 # TriStateLite Results Draft (数字待最终实验填入)
 
-> 状态：草稿。所有 `<TBD>` 将由 `scripts/aggregate_results.py` 输出填入。
+> 状态：草稿更新（2026-08-11 03:30）。H1 已有 3-seed 结果。剩余 unordered/fixedW/point/mcdropout 待完成。
 > 实验配置见 `configs/experiments/`，运行产物在 `data/experiments/runs/{config}/seed{seed}/`。
+
+## 核心发现（已确认，2026-08-11 03:30）
+
+**物理一致性损失（λ=0.1）具有状态依赖的混合效应**（TST 3 seeds vs noPhysics 3 seeds）：
+
+| 状态 | Δ（TST−noPhysics） | 结论 |
+|------|-------------------|------|
+| SOH crps | −0.0089（TST 更好）| 物理耦合帮助慢变状态 |
+| SOC crps | +0.0068（TST 更差）| 物理耦合扭曲快变状态 |
+| log_tte crps | +0.0205（TST 更差）| 略差 |
+| tte_seconds.mae | +26.7s（TST 更差）| noPhysics 明显更好 |
+| physics.error | +0.046（TST 更差）| 无物理监督反而更自洽 |
+
+**解释**：物理方程 `soc·soh·q_ref/i_eff` 中 soc 快变（每锚点）、soh 慢变（每循环）。SOH 从与高可观测 soc/tte 的耦合中受益；SOC 被噪声乘积 soh·q_ref/i_eff 的梯度扭曲。**显式安时一致性正则并非均匀有益——其方向取决于被耦合状态的时间尺度。**
+
+**联合概率框架本身（noPhysics）很强**：soc.crps 0.033、soh.crps 0.059、tte_seconds.mae 67s（3 seeds）。
+
+**论文定位修订**：
+1. 联合概率 SOC/SOH/TTE 预测 + 有序头（novel，主贡献）
+2. 强结果（noPhysics 模型）+ 后置重校准
+3. 诚实科学发现：物理一致性正则的状态依赖效应（方法学贡献）
+4. 待验证：λ 扫描 + detach-soc 变体是否保留 SOH 收益同时避免 SOC 伤害
 
 ## 主结果表结构（Table 1）
 
