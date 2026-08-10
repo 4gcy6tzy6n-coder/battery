@@ -55,7 +55,7 @@ tests/test_losses.py                          # numeric loss and physical diagno
 - Produces: `engineer_causal_features(samples: pd.DataFrame) -> pd.DataFrame`
 - Produces: `transform_features(frame: pd.DataFrame, artifact: Mapping[str, object], *, output_suffix: str | None = None) -> pd.DataFrame`
 
-- [ ] **Step 1: Write failing physical-feature tests**
+^- [x] **Step 1: Write failing physical-feature tests**
 
 Extend `tests/test_windows.py` so the future-invariance test includes the exact
 columns below and verifies their units on a constant-current sequence:
@@ -81,7 +81,7 @@ assert np.isfinite(features["current_cv_60s"]).all()
 Add a sequence with exactly `2.5 A` and assert `i_eff_60s == 2.5` and
 `current_cv_60s == 0` after the first full window.
 
-- [ ] **Step 2: Write a failing suffixed-scaler test**
+^- [x] **Step 2: Write a failing suffixed-scaler test**
 
 Extend `tests/test_scaling.py`:
 
@@ -94,7 +94,7 @@ assert transformed["temperature_c__scaled"].iloc[0] == 0.0
 assert transformed["temperature_available"].tolist() == [False, True]
 ```
 
-- [ ] **Step 3: Verify RED**
+^- [x] **Step 3: Verify RED**
 
 Run:
 
@@ -105,7 +105,7 @@ Run:
 Expected: failures for missing `temperature_delta_1s`, missing `i_eff_60s`, and
 unsupported `output_suffix`.
 
-- [ ] **Step 4: Implement causal physical features**
+^- [x] **Step 4: Implement causal physical features**
 
 In `src/tristatelite/data/windows.py`, compute all rolling fields before scaling:
 
@@ -141,7 +141,7 @@ MODEL_FEATURES = tuple(f"{name}__scaled" for name in MODEL_CONTINUOUS_FEATURES) 
 
 Remove `current_mean_60s`; `i_eff_60s` is its explicit unit-bearing replacement.
 
-- [ ] **Step 5: Implement suffix-preserving transformation**
+^- [x] **Step 5: Implement suffix-preserving transformation**
 
 Change `transform_features` so `output_suffix=None` retains the existing overwrite
 behavior and any string suffix writes a new column:
@@ -154,7 +154,7 @@ result[destination] = np.clip((values - median) / iqr, lower, upper)
 Reject a suffix that would overwrite an existing source name and reject missing
 source columns with a clear `ValueError`.
 
-- [ ] **Step 6: Verify GREEN and commit**
+^- [x] **Step 6: Verify GREEN and commit**
 
 Run:
 
@@ -187,7 +187,7 @@ git commit -m "fix: preserve unit-bearing physics features"
 - Produces each dataset item with `physics: dict[str, Tensor]`
 - Produces build report keys `physical_ranges` and `scaled_feature_ranges`
 
-- [ ] **Step 1: Write failing dataset-item tests**
+^- [x] **Step 1: Write failing dataset-item tests**
 
 Update `_window_frames()` in `tests/test_windows.py` to include:
 
@@ -207,7 +207,7 @@ assert first["physics"]["q_ref_ah"].item() == pytest.approx(1.0)
 Add a test that omitting any required physics field raises `ValueError` during
 `BatteryWindowDataset` construction.
 
-- [ ] **Step 2: Write failing build-contract tests**
+^- [x] **Step 2: Write failing build-contract tests**
 
 Extend `tests/test_build_dataset.py` after reading samples:
 
@@ -221,7 +221,7 @@ assert set(report["physical_ranges"]) == {"current_a", "i_eff_60s", "current_cv_
 assert "current_a__scaled" in report["scaled_feature_ranges"]
 ```
 
-- [ ] **Step 3: Write a failing model-feature leakage test**
+^- [x] **Step 3: Write a failing model-feature leakage test**
 
 Add to `tests/test_split.py`:
 
@@ -238,7 +238,7 @@ with pytest.raises(ValueError, match="forbidden model feature"):
 
 Also verify `MODEL_FEATURES` passes the same audit.
 
-- [ ] **Step 4: Verify RED**
+^- [x] **Step 4: Verify RED**
 
 Run:
 
@@ -249,7 +249,7 @@ Run:
 Expected: positional physics tensor, overwritten raw current, absent report ranges,
 and unsupported audit argument.
 
-- [ ] **Step 5: Reorder and separate the dataset build**
+^- [x] **Step 5: Reorder and separate the dataset build**
 
 In `scripts/build_dataset.py`:
 
@@ -272,7 +272,7 @@ def _ranges(frame: pd.DataFrame, columns: tuple[str, ...]) -> dict[str, dict[str
 Record raw ranges for `current_a`, `i_eff_60s`, `current_cv_60s`, and `q_ref_ah`,
 plus ranges for every continuous `__scaled` feature.
 
-- [ ] **Step 6: Implement named physics items and feature audit**
+^- [x] **Step 6: Implement named physics items and feature audit**
 
 Validate these columns in `BatteryWindowDataset.__init__`:
 
@@ -284,12 +284,12 @@ Return scalar float32 tensors by name. Extend `audit_leakage` with an optional
 model feature list and reject names containing `target`, `future`,
 `final_capacity`, `current_cycle_capacity`, or exactly `q_ref_ah`.
 
-- [ ] **Step 7: Update the data dictionary**
+^- [x] **Step 7: Update the data dictionary**
 
 Document `i_eff_60s`, `current_cv_60s`, all `__scaled` fields, the fact that raw
 unit-bearing fields are never overwritten, and the named physics mapping.
 
-- [ ] **Step 8: Verify GREEN and commit**
+^- [x] **Step 8: Verify GREEN and commit**
 
 Run:
 
@@ -318,7 +318,7 @@ git commit -m "fix: separate model inputs from physical supervision"
 - Produces: `PositiveQuantileHead(in_dim: int)`
 - Both consume `Tensor[..., in_dim]` and return `Tensor[..., 3]`
 
-- [ ] **Step 1: Write failing ordering and bound tests**
+^- [x] **Step 1: Write failing ordering and bound tests**
 
 Create `tests/test_quantile_heads.py`:
 
@@ -359,20 +359,20 @@ def test_head_rejects_non_positive_input_dimension(head_type):
         head_type(0)
 ```
 
-- [ ] **Step 2: Verify RED**
+^- [x] **Step 2: Verify RED**
 
 Run: `.venv/bin/pytest tests/test_quantile_heads.py -v`
 
 Expected: import failure for `tristatelite.models.quantile_heads`.
 
-- [ ] **Step 3: Implement heads without sorting**
+^- [x] **Step 3: Implement heads without sorting**
 
 Use one `nn.Linear(in_dim, 3)` per head. Split raw outputs with
 `m, lower_raw, upper_raw = self.projection(hidden).unbind(dim=-1)` and implement
 the exact formulas from the Phase 2B design. Stack `(q05, q50, q95)` on the final
 dimension.
 
-- [ ] **Step 4: Verify GREEN and commit**
+^- [x] **Step 4: Verify GREEN and commit**
 
 Run:
 
@@ -398,7 +398,7 @@ git commit -m "feat: add ordered quantile heads"
 **Interfaces:**
 - Produces: `pinball_loss(pred: Tensor, target: Tensor, quantiles: Tensor) -> Tensor`
 
-- [ ] **Step 1: Write failing numeric tests**
+^- [x] **Step 1: Write failing numeric tests**
 
 Create `tests/test_losses.py` with:
 
@@ -429,13 +429,13 @@ Parameterize invalid cases for prediction last dimension not 3, target shape not
 matching prediction leading dimensions, non-finite quantiles, unordered quantiles,
 and quantiles outside `(0, 1)`.
 
-- [ ] **Step 2: Verify RED**
+^- [x] **Step 2: Verify RED**
 
 Run: `.venv/bin/pytest tests/test_losses.py -v`
 
 Expected: import failure for `tristatelite.losses.pinball`.
 
-- [ ] **Step 3: Implement validation and loss**
+^- [x] **Step 3: Implement validation and loss**
 
 Normalize a target shaped `[..., 1]` with `squeeze(-1)`, require equality with
 `pred.shape[:-1]`, and move quantiles to prediction device and dtype only after
@@ -447,7 +447,7 @@ loss = torch.maximum(quantiles * error, (quantiles - 1.0) * error)
 return loss.mean()
 ```
 
-- [ ] **Step 4: Verify GREEN and commit**
+^- [x] **Step 4: Verify GREEN and commit**
 
 Run:
 
@@ -472,7 +472,7 @@ git commit -m "feat: add validated pinball loss"
 **Interfaces:**
 - Produces: `physics_consistency_loss(soc_median, soh_median, log_tte_median, q_ref_ah, i_eff_60s, current_cv_60s, *, minimum_current_a=0.05, maximum_tte_s=604800.0) -> tuple[Tensor, dict[str, Tensor]]`
 
-- [ ] **Step 1: Write failing matching-physics and diagnostics tests**
+^- [x] **Step 1: Write failing matching-physics and diagnostics tests**
 
 Add:
 
@@ -494,7 +494,7 @@ def test_consistency_is_zero_for_matching_physical_tte():
     assert diagnostics["median_physical_tte_s"].item() == pytest.approx(2880.0)
 ```
 
-- [ ] **Step 2: Write failing masking, stability, and gradient tests**
+^- [x] **Step 2: Write failing masking, stability, and gradient tests**
 
 Cover all of these cases:
 
@@ -540,13 +540,13 @@ def test_consistency_gradients_reach_all_medians():
 Also test that NaN physics is inactive, shape mismatch raises `ValueError`, and
 non-positive thresholds raise `ValueError`.
 
-- [ ] **Step 3: Verify RED**
+^- [x] **Step 3: Verify RED**
 
 Run: `.venv/bin/pytest tests/test_losses.py -v`
 
 Expected: import failure for `tristatelite.losses.consistency`.
 
-- [ ] **Step 4: Implement shape-safe active masking**
+^- [x] **Step 4: Implement shape-safe active masking**
 
 Require every input tensor to have exactly the same shape. Build an active mask
 from finiteness and current threshold. Replace inactive values with finite safe
@@ -562,7 +562,7 @@ For an all-inactive batch, include `log_tte_median.sum() * 0.0` in the returned
 loss so backward remains valid. Compute diagnostics under `torch.no_grad()`; return
 zero scalar diagnostics when no row is active.
 
-- [ ] **Step 5: Verify GREEN and commit**
+^- [x] **Step 5: Verify GREEN and commit**
 
 Run:
 
@@ -588,7 +588,7 @@ git commit -m "feat: add physical TTE consistency loss"
 - Consumes the real archive with audited SHA256.
 - Produces a leakage-audited smoke artifact and model-ready window item.
 
-- [ ] **Step 1: Run the complete suite and lint**
+^- [x] **Step 1: Run the complete suite and lint**
 
 Run:
 
@@ -600,7 +600,7 @@ git diff --check
 
 Expected: all tests pass, Ruff reports no errors, and no whitespace errors exist.
 
-- [ ] **Step 2: Build a fresh real NASA smoke artifact**
+^- [x] **Step 2: Build a fresh real NASA smoke artifact**
 
 Run:
 
@@ -618,7 +618,7 @@ Run:
 Expected: status `complete`, 6 batteries, 18 accepted cycles, and passed leakage
 audit.
 
-- [ ] **Step 3: Verify real units and construct a window**
+^- [x] **Step 3: Verify real units and construct a window**
 
 Read the artifact and assert in a one-off verification command:
 
@@ -631,7 +631,7 @@ Read the artifact and assert in a one-off verification command:
 - a training `BatteryWindowDataset` item has fast shape `[128, 12]`, slow shape
   `[8, 8]`, and physics keys `i_eff_60s`, `current_cv_60s`, `q_ref_ah`.
 
-- [ ] **Step 4: Run final verification after any fix**
+^- [x] **Step 4: Run final verification after any fix**
 
 Run again:
 
