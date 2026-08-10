@@ -17,7 +17,16 @@ import scipy.interpolate
 
 LEVELS = np.arange(0.05, 1.0, 0.05)
 _MC_TARGET_SUBSAMPLE = 2000
-_MC_SAMPLES = 20000
+_MC_SAMPLES = 100000
+# pinball/PICP/PINAW/ECE recompute the identical formula -> near-exact.
+# CRPS uses an independent MC estimator -> allow a wider systematic gap.
+TOLERANCES = {
+    "pinball": 0.005,
+    "picp_90": 0.005,
+    "pinaw_90": 0.005,
+    "ece": 0.005,
+    "crps": 0.10,
+}
 
 
 def mc_crps(quantiles: np.ndarray, targets: np.ndarray) -> float:
@@ -86,25 +95,35 @@ def verify_run(run_dir: Path, tolerance: float = 0.05) -> dict[str, object]:
             key: abs(independent[key] - reported[key]) / max(abs(reported[key]), 1e-9)
             for key in independent
         }
+        failed = {
+            key: value for key, value in deviations.items() if value > TOLERANCES[key]
+        }
         max_dev = max(max_dev, *deviations.values())
         checks[state] = {
             "reported": {key: round(float(reported[key]), 6) for key in independent},
             "independent": {key: round(float(value), 6) for key, value in independent.items()},
             "relative_deviation": {key: round(value, 4) for key, value in deviations.items()},
+            "over_tolerance": {key: round(value, 4) for key, value in failed.items()},
             "quantiles_ordered": bool(np.all(np.diff(quantiles, axis=1) >= 0)),
             "finite": bool(np.isfinite(quantiles).all()),
         }
     checks["max_relative_deviation"] = round(max_dev, 4)
-    checks["pass"] = bool(max_dev <= tolerance)
+    over = [
+        f"{state}.{metric}"
+        for state in checks
+        if isinstance(checks[state], dict)
+        for metric in checks[state].get("over_tolerance", {})
+    ]
+    checks["pass"] = not over
+    checks["over_tolerance_metrics"] = over
     return checks
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", type=Path, required=True, help="run directory with results.json")
-    parser.add_argument("--tolerance", type=float, default=0.05)
     args = parser.parse_args()
-    checks = verify_run(args.run, tolerance=args.tolerance)
+    checks = verify_run(args.run)
     print(json.dumps(checks, indent=2, sort_keys=True))
     print("VERDICT:", "PASS" if checks["pass"] else "FAIL")
 
