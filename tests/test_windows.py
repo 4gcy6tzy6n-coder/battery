@@ -151,7 +151,7 @@ def test_window_dataset_rejects_a_missing_physics_column():
 
 
 def test_default_model_features_are_scaled_or_boolean():
-    assert len(MODEL_FEATURES) == 12
+    assert len(MODEL_FEATURES) == 13  # 12 scaled continuous + boolean availability
     assert all(name.endswith("__scaled") for name in MODEL_FEATURES[:-1])
     assert MODEL_FEATURES[-1] == "temperature_available"
 

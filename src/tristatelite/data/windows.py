@@ -33,6 +33,7 @@ MODEL_CONTINUOUS_FEATURES = (
     "i_eff_60s",
     "voltage_slope_30s",
     "temperature_slope_60s",
+    "elapsed_s",
 )
 MODEL_FEATURES = tuple(f"{name}__scaled" for name in MODEL_CONTINUOUS_FEATURES) + (
     "temperature_available",
