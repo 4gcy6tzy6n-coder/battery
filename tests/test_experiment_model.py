@@ -102,6 +102,20 @@ def test_mc_dropout_stochasticity_is_configurable() -> None:
     assert any(not torch.equal(x, y) for x, y in zip(a, b, strict=True))
 
 
+def test_tcn_encoder_outputs_anchor_representation() -> None:
+    torch.manual_seed(9)
+    model = TriStateLiteNet(
+        fast_input_dim=12, slow_input_dim=8, hidden_dim=16, num_layers=3,
+        num_quantiles=3, head_mode="ordered", encoder_type="tcn",
+    )
+    batch = _toy_batch(6, 128, 12, 8)
+    soc, soh, tte = model(**batch)
+    assert soc.shape == (6, 3)
+    assert torch.isfinite(soc).all() and torch.isfinite(tte).all()
+    (soc.sum() + soh.sum() + tte.sum()).backward()
+    assert model.gru.net[0][0].weight.grad is not None
+
+
 def test_net_supports_eleven_ordered_quantiles() -> None:
     torch.manual_seed(3)
     model = TriStateLiteNet(

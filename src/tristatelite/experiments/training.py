@@ -121,6 +121,7 @@ def build_net(cfg: ExperimentConfig, fast_dim: int, slow_dim: int) -> TriStateLi
         dropout=cfg.dropout,
         num_quantiles=cfg.num_quantiles,
         head_mode=cfg.head_mode,
+        encoder_type=cfg.encoder_type,
     )
 
 

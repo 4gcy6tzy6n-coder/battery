@@ -26,6 +26,7 @@ class ExperimentConfig:
     eval_pool: int = 0  # anchors used for val/test; <=0 uses all
 
     # Model
+    encoder_type: str = "gru"  # gru | tcn
     hidden_dim: int = 64
     num_layers: int = 2
     dropout: float = 0.1
@@ -71,6 +72,8 @@ class ExperimentConfig:
             raise ValueError("num_quantiles must be an odd integer of at least three")
         if self.head_mode not in HEAD_MODES:
             raise ValueError(f"head_mode must be one of {HEAD_MODES}")
+        if self.encoder_type not in ("gru", "tcn"):
+            raise ValueError("encoder_type must be 'gru' or 'tcn'")
         if self.batch_size <= 0 or self.eval_batch_size <= 0:
             raise ValueError("batch sizes must be positive")
         if self.learning_rate <= 0:

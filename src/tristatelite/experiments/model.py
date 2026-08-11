@@ -15,6 +15,43 @@ from torch import nn
 from tristatelite.models.quantile_heads import BoundedQuantileHead, PositiveQuantileHead
 
 
+class TCNEncoder(nn.Module):
+    """Causal dilated-convolution encoder over the fast window.
+
+    Dilations grow by powers of two, so the final position's receptive field
+    covers the whole window with O(log L) layers. Faster than a GRU on CPU.
+    """
+
+    def __init__(
+        self, input_dim: int, hidden_dim: int, num_layers: int, dropout: float
+    ) -> None:
+        super().__init__()
+        if num_layers <= 0:
+            raise ValueError("num_layers must be positive")
+        blocks: list[nn.Module] = []
+        for layer_index in range(num_layers):
+            dilation = 2**layer_index
+            in_channels = input_dim if layer_index == 0 else hidden_dim
+            conv = nn.Conv1d(
+                in_channels,
+                hidden_dim,
+                kernel_size=3,
+                padding=dilation,  # causal: pad only the left via padding=dilation
+                dilation=dilation,
+            )
+            blocks.append(
+                nn.Sequential(conv, nn.ReLU(), nn.Dropout(dropout))
+            )
+        self.net = nn.Sequential(*blocks)
+
+    def forward(self, fast_x: torch.Tensor) -> torch.Tensor:
+        # fast_x: [B, L, F] -> [B, F, L]
+        x = fast_x.transpose(1, 2)
+        x = self.net(x)
+        # Anchor representation: the final timestep of the causal stack.
+        return x[:, :, -1]
+
+
 class PointHead(nn.Module):
     """Single-point output head for the deterministic MSE baseline."""
 
@@ -59,6 +96,7 @@ class TriStateLiteNet(nn.Module):
         dropout: float = 0.1,
         num_quantiles: int = 3,
         head_mode: str = "ordered",
+        encoder_type: str = "gru",
     ) -> None:
         super().__init__()
         if fast_input_dim <= 0 or slow_input_dim <= 0 or hidden_dim <= 0:
@@ -69,18 +107,24 @@ class TriStateLiteNet(nn.Module):
             raise ValueError("dropout must be in [0, 1)")
         if head_mode not in ("ordered", "unordered", "point"):
             raise ValueError("head_mode must be ordered, unordered, or point")
+        if encoder_type not in ("gru", "tcn"):
+            raise ValueError("encoder_type must be 'gru' or 'tcn'")
         self.num_quantiles = num_quantiles
         self.head_mode = head_mode
+        self.encoder_type = encoder_type
         self.requires_quantile_sort = head_mode == "unordered"
         self.hidden_dim = hidden_dim
-        # GRU dropout only applies between stacked layers.
-        self.gru = nn.GRU(
-            fast_input_dim,
-            hidden_dim,
-            num_layers=num_layers,
-            batch_first=True,
-            dropout=dropout if num_layers > 1 else 0.0,
-        )
+        if encoder_type == "gru":
+            # GRU dropout only applies between stacked layers.
+            self.gru = nn.GRU(
+                fast_input_dim,
+                hidden_dim,
+                num_layers=num_layers,
+                batch_first=True,
+                dropout=dropout if num_layers > 1 else 0.0,
+            )
+        else:
+            self.gru = TCNEncoder(fast_input_dim, hidden_dim, num_layers, dropout)
         self.fusion = nn.Linear(hidden_dim + slow_input_dim, hidden_dim)
         self.head_dropout = nn.Dropout(dropout)
         if head_mode == "ordered":
@@ -105,7 +149,9 @@ class TriStateLiteNet(nn.Module):
     def _encode_fast(
         self, fast_x: torch.Tensor, fast_mask: torch.Tensor
     ) -> torch.Tensor:
-        """Return the anchor hidden state, ignoring left padding exactly."""
+        """Return the anchor representation, ignoring left padding."""
+        if self.encoder_type == "tcn":
+            return self.gru(fast_x)
         batch, length, dim = fast_x.shape
         lengths = fast_mask.sum(dim=1).clamp(min=1)
         # Reorder each sample so valid rows are contiguous at the front,
