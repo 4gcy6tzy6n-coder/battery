@@ -1,5 +1,5 @@
 # SOTA push: TCN encoder + unordered heads, cosine schedule, no physics.
-dataset_root: data/processed/nasa-randomized-full
+dataset_root: data/processed/nasa-randomized-full-v2
 split_seed: 2026
 fast_length: 128
 history_length: 8
