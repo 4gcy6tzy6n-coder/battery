@@ -117,3 +117,24 @@
 **cv 加权劣于固定权重**：log_tte.crps cvW 0.104 vs fixed 0.067；tte_seconds.mae cvW 94s vs fixed **53s**；soh cvW 略好。
 
 **重大含义**：固定权重物理损失（λ=0.1 均匀）TTE MAE 53s **优于 noPhysics 67s**——物理损失可能确实帮助 TTE，问题在 cv 加权（物理公式高 cv 段依然准确，降权移除有用监督）。**待 fixedW 3 seeds 确认**。若确认，论文叙事部分复活：物理一致性帮助 TTE（均匀加权），cv 加权与有序头是不必要的复杂化。
+
+## H3 确认（2026-08-11 10:45，fixedW 2 seeds）
+
+| 指标 | cvW(3) | fixedW(2) | noPhys(3) |
+|------|--------|-----------|-----------|
+| soc.crps | 0.0396 | 0.0375 | **0.0328** |
+| soh.crps | **0.0498** | 0.0549 | 0.0587 |
+| log_tte.crps | 0.1036 | 0.0955 | **0.0831** |
+| tte_seconds.mae | 93.9 | 85.6 | **67.2** |
+
+**结论**：固定权重好于 cv 加权（cv 加权多余——物理公式高 cv 段准确），但两者都劣于 noPhysics 于快状态。seed0 的 fixedW tte 53s 是异常值（2 seeds 85.6s）。**最终模式**：物理（任何权重）帮 SOH、伤快状态；简单设计胜出。
+
+## 论文最终框架（2026-08-11 确立）
+
+**"Design choices for joint probabilistic battery state prediction: simple flexible methods outperform construction-constrained ones"**
+
+贡献：
+1. 联合概率 SOC/SOH/TTE 预测基准（novel setting）
+2. 简单 GRU + 独立分位头 + 后置排序模型胜过更受约束的设计
+3. 系统消融：(a) 有序头（构造保证）劣于灵活 unordered（表达能力代价）；(b) 物理一致性正则帮慢状态 SOH、伤快状态 SOC/log_tte；(c) cv 加权劣于均匀
+4. 电池隔离评估 + 独立复核指标
