@@ -1,0 +1,33 @@
+# SOTA push: TCN encoder + unordered heads, cosine schedule, no physics.
+dataset_root: data/processed/nasa-randomized-full
+split_seed: 2026
+fast_length: 128
+history_length: 8
+stride: 10
+training_pool: 150000
+
+encoder_type: tcn
+hidden_dim: 128
+num_layers: 4
+dropout: 0.1
+num_quantiles: 19
+head_mode: unordered
+
+batch_size: 64
+learning_rate: 0.001
+weight_decay: 0.00001
+max_epochs: 60
+early_stop_patience: 8
+lr_patience: 3
+lr_schedule: cosine
+grad_clip_norm: 1.0
+warmup_epochs: 3
+seed: 0
+device: cpu
+
+physics_weight: 0.0
+cv_weighted: true
+normalize_by_target_scale: true
+
+mc_samples: 0
+eval_batch_size: 512
