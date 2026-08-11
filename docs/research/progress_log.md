@@ -111,3 +111,9 @@
 | soc.picp_90 | **0.951** | 0.894 | 0.814 |
 
 **结论**：unordered（灵活分位头 + 后置排序）是最佳整体模型；noPhysics 次之；TST（有序头）最差于快状态但最佳于 SOH。**"简单设计胜出"叙事牢固确立**。unorderd 校准最好（PICP≈0.95/0.89 接近名义），重校准对其可能不那么必要。
+
+## H3 发现（2026-08-11 09:44，fixedW seed0）
+
+**cv 加权劣于固定权重**：log_tte.crps cvW 0.104 vs fixed 0.067；tte_seconds.mae cvW 94s vs fixed **53s**；soh cvW 略好。
+
+**重大含义**：固定权重物理损失（λ=0.1 均匀）TTE MAE 53s **优于 noPhysics 67s**——物理损失可能确实帮助 TTE，问题在 cv 加权（物理公式高 cv 段依然准确，降权移除有用监督）。**待 fixedW 3 seeds 确认**。若确认，论文叙事部分复活：物理一致性帮助 TTE（均匀加权），cv 加权与有序头是不必要的复杂化。
