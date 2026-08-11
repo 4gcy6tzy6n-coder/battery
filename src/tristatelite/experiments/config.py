@@ -39,6 +39,9 @@ class ExperimentConfig:
     max_epochs: int = 60
     early_stop_patience: int = 8
     lr_patience: int = 3
+    lr_schedule: str = "plateau"  # plateau | cosine
+    grad_clip_norm: float = 0.0  # 0 disables gradient clipping
+    warmup_epochs: int = 0
     seed: int = 0
     device: str = "cpu"
 
@@ -76,6 +79,12 @@ class ExperimentConfig:
             raise ValueError("max_epochs must be positive")
         if self.early_stop_patience <= 0 or self.lr_patience <= 0:
             raise ValueError("patience values must be positive")
+        if self.lr_schedule not in ("plateau", "cosine"):
+            raise ValueError("lr_schedule must be 'plateau' or 'cosine'")
+        if self.grad_clip_norm < 0:
+            raise ValueError("grad_clip_norm must be non-negative")
+        if self.warmup_epochs < 0 or self.warmup_epochs >= self.max_epochs:
+            raise ValueError("warmup_epochs must be in [0, max_epochs)")
         if self.physics_weight < 0:
             raise ValueError("physics_weight must be non-negative")
         if self.mc_samples < 0:

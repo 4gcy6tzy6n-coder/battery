@@ -349,9 +349,19 @@ def run_experiment(cfg: ExperimentConfig, out_dir: str | Path) -> dict[str, obje
     optimizer = torch.optim.Adam(
         model.parameters(), lr=cfg.learning_rate, weight_decay=cfg.weight_decay
     )
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode="min", factor=0.5, patience=cfg.lr_patience
-    )
+    if cfg.lr_schedule == "cosine":
+        base_lr = cfg.learning_rate * (0.1 if cfg.warmup_epochs > 0 else 1.0)
+        scheduler = torch.optim.lr_scheduler.LambdaLR(
+            optimizer,
+            lambda epoch: (
+                epoch / cfg.warmup_epochs if epoch < cfg.warmup_epochs else 0.5 * (1.0 + np.cos(np.pi * (epoch - cfg.warmup_epochs) / (cfg.max_epochs - cfg.warmup_epochs)))
+            )
+            * (base_lr / cfg.learning_rate),
+        )
+    else:
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode="min", factor=0.5, patience=cfg.lr_patience
+        )
 
     rng = np.random.default_rng(cfg.seed)
     best_val = float("inf")
@@ -367,6 +377,8 @@ def run_experiment(cfg: ExperimentConfig, out_dir: str | Path) -> dict[str, obje
             optimizer.zero_grad()
             total, _ = compute_loss(model, batch, scales, cfg, device)
             total.backward()
+            if cfg.grad_clip_norm > 0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.grad_clip_norm)
             optimizer.step()
             epoch_losses.append(float(total.detach()))
         train_loss = float(np.mean(epoch_losses))
@@ -388,7 +400,10 @@ def run_experiment(cfg: ExperimentConfig, out_dir: str | Path) -> dict[str, obje
                 f"epoch {epoch} train={train_loss:.4f} val_log_tte_pinball={val_score:.4f}",
                 flush=True,
             )
-        scheduler.step(val_score)
+        if cfg.lr_schedule == "cosine":
+            scheduler.step()
+        else:
+            scheduler.step(val_score)
         if val_score < best_val:
             best_val = val_score
             patience_left = cfg.early_stop_patience
