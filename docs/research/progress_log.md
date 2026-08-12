@@ -194,6 +194,23 @@ s0 早停于 28 epoch（val 6+ epoch 无改善），达到 SOTA。**新 SOTA 全
 
 s1（pid 85695）仍在跑，ELAPSED 18h46m，cputime 902:27。等两边齐再做完整重校准/复核/聚合/推送。
 
+## s1 完成 + 完整后处理（2026-08-12 18:22）
+
+s1 落地 18:11，epochs_run=46。两边齐，跑完 `run_sota_postprocess.sh`：
+- s0 重校准 → recalibrated_results.json（cron 第一次触发时已完成）
+- s1 重校准 → 手动补跑（cron 跑时 set -e 让脚本中断在 verify_results.py）
+- 聚合：sota_unordered_nophysics (n=2) — 见 `data/experiments/runtime_capture/aggregate_sota.md`
+- 主聚合因 baseline_point 无 `pinball` 键而失败（非 SOTA 问题，跳过）
+
+| 指标（n=2）| SOTA | 旧 unordered | Δ |
+|-----------|------|-------------|---|
+| soc.crps | **0.0188±0.0005** | 0.025 | -25% |
+| log_tte.crps | **0.0668±0.0093** | 0.078 | -14% |
+| tte_seconds.mae | **46.1±11.1s** | 57s | -19% |
+| physics.error | 0.1802±0.0191 | — | — |
+
+更新 `docs/research/paper_results_draft.md` 写入 SOTA 表与论文定位。process 85694/85695 已退，cron b030dd3b 仍 pending——下次触发将走完推送。
+
 ## 论文最终框架（2026-08-11 确立）
 
 **"Design choices for joint probabilistic battery state prediction: simple flexible methods outperform construction-constrained ones"**

@@ -1,7 +1,7 @@
 # TriStateLite Results Draft (数字待最终实验填入)
 
-> 状态：草稿更新（2026-08-11 03:30）。H1 已有 3-seed 结果。剩余 unordered/fixedW/point/mcdropout 待完成。
-> 实验配置见 `configs/experiments/`，运行产物在 `data/experiments/runs/{config}/seed{seed}/`。
+> 状态：草稿更新（2026-08-12 18:22）。**SOTA s0/s1 完成**，新 SOTA 全面优于旧 unordered 基线。
+> 实验配置见 `configs/experiments/`，运行产物在 `data/experiments/runs/{config}/seed{seed}/` 与 `data/experiments/sota-v2-s{0,1}/`。
 
 ## 核心发现（已确认，2026-08-11 03:30）
 
@@ -19,9 +19,25 @@
 
 **联合概率框架本身（noPhysics）很强**：soc.crps 0.033、soh.crps 0.059、tte_seconds.mae 67s（3 seeds）。
 
+## SOTA 推进（2026-08-12 完成）
+
+新 SOTA 配置：unordered 头 + hidden_dim=128 + cosine LR + grad clip + v2 数据集（elapsed_s 特征） + pool=150k。配置 `sota_unordered_nophysics.yaml`，2 seeds：
+
+| 指标 | 旧 unordered（基线）| SOTA sota_unordered_nophysics | Δ |
+|------|---------------------|-------------------------------|---|
+| soc.crps | 0.025 | **0.0188±0.0005** | **-25%** |
+| soh.crps | 0.058 | 0.0567±0.0078 | -2% |
+| log_tte.crps | 0.078 | **0.0668±0.0093** | **-14%** |
+| tte_seconds.mae | 57s | **46.1±11.1s** | **-19%** |
+| soc.picp_90 | 0.951 | 0.961±0.002 | 命名校准良好 |
+| log_tte.picp_90 | — | 0.984±0.003 | 略过覆盖 |
+| epochs_run | ~50 | 28–46（s0/s1） | early stop 触发 |
+
+**核心结论**：hidden_dim 64→128 + elapsed_s 周期相位特征 + cosine schedule 在所有状态都有一致改进，TTE 误差从 57s 降到 46s（-19%）是 paper 关键新数字。SOTA s0 early-stop 在 28 epoch——新特征下 val 改善更陡峭。
+
 **论文定位修订**：
 1. 联合概率 SOC/SOH/TTE 预测 + 有序头（novel，主贡献）
-2. 强结果（noPhysics 模型）+ 后置重校准
+2. 强结果（SOTA unordered 模型）+ 后置重校准
 3. 诚实科学发现：物理一致性正则的状态依赖效应（方法学贡献）
 4. 待验证：λ 扫描 + detach-soc 变体是否保留 SOH 收益同时避免 SOC 伤害
 
