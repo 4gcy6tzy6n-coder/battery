@@ -129,6 +129,41 @@
 
 **结论**：固定权重好于 cv 加权（cv 加权多余——物理公式高 cv 段准确），但两者都劣于 noPhysics 于快状态。seed0 的 fixedW tte 53s 是异常值（2 seeds 85.6s）。**最终模式**：物理（任何权重）帮 SOH、伤快状态；简单设计胜出。
 
+## SOTA 推进（2026-08-11 晚 → 2026-08-12 凌晨）
+
+最近 5 个 commit 加入 SOTA 能力（hidden_dim=128、cosine LR + grad clip、TCN encoder、`elapsed_s` 周期相位特征、v2 数据集）：
+- `b774fb6` cosine LR + grad clip + SOTA configs (hidden 128, unordered, ±physics)
+- `a61e94f` TCN 编码器选项（并行、更大感受野）
+- `d0a1675` TCN SOTA 配置
+- `3f3b144` `elapsed_s` 周期相位特征（标量化 v2 数据集）
+- `9c1e081` SOTA 配置切到 v2 数据集
+
+启动 `sota_unordered_nophysics` seed 0/1 两份训练，**未重定向 stdout → epoch 日志永久丢失**。
+
+## 后台 SOTA 运行时捕获（2026-08-12 05:30）
+
+现实约束：
+- macOS 上 `py-spy` 需 sudo；本会话无 sudo → 无法读 Python 局部变量（epoch/loss）
+- lldb `expr` 调用 Python C API 需要 GIL；进程在原生 PyTorch autograd 中 → EXC_BAD_ACCESS
+- macOS 无 Python dtrace 探针，csrutil 已启用
+- 唯一非侵入信号：`sample` 拿 C 级栈 + CPU 时间增长 + results.json 出现
+
+新增 `scripts/capture_sota_runtime.sh`：每 60s 采 `sample`、记 CPU/RSS、`results.json` 落地自动停。日志 `data/experiments/runtime_capture/{pid}.log`。
+
+**首次采样（2026-08-12 05:32）**：
+- sota-v2-s0 (pid 85694): cputime 210:29→212:42 (60s +2:13), rss 1.26GB, top=libomp 微任务
+- sota-v2-s1 (pid 85695): cputime 211:14→213:27, rss 1.26GB, 同样在 libomp 计算
+
+两进程均正常推进。等 results.json 出现后做后续复核/聚合/重校准/更新 paper。
+
+## 定时监控（2026-08-12 06:30）
+
+估计剩余 ~15 小时（按 30 min/epoch × 60 epoch 配置）。停止前台轮询，改用 cron job `ad2c02f6`：每 2 小时 :57 触发，落地后按 `docs/research/sota_postprocess.md` 执行重校准/复核/聚合/更新论文/推送 40 commit。
+
+新增脚本：`scripts/capture_sota_runtime.sh`（基于 `sample`，macOS 不稳定，已弃用）、`scripts/watch_sota_results.sh`（轻量版，仅 ps/ls）。
+
+**禁止行为**：在 cron 触发前不要前台轮询；不要杀后台进程；不要重启训练。
+
 ## 论文最终框架（2026-08-11 确立）
 
 **"Design choices for joint probabilistic battery state prediction: simple flexible methods outperform construction-constrained ones"**
