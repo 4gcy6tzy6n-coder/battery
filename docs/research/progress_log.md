@@ -211,6 +211,34 @@ s1 落地 18:11，epochs_run=46。两边齐，跑完 `run_sota_postprocess.sh`�
 
 更新 `docs/research/paper_results_draft.md` 写入 SOTA 表与论文定位。process 85694/85695 已退，cron b030dd3b 仍 pending——下次触发将走完推送。
 
+## SOTA 对比表（2026-08-12 19:15，sota_unordered_nophysics n=2 完成）
+
+| 指标 | 旧 unordered 基线 (n=3) | **SOTA unordered_nophysics (n=2)** | Δ |
+|------|-------------------------|-------------------------------------|---|
+| soc.crps | 0.0246±0.006 | **0.0188±0.0005** | **-24%** |
+| soh.crps | 0.0583±0.008 | 0.0567±0.0078 | -3% |
+| log_tte.crps | 0.0780±0.017 | **0.0668±0.0093** | **-14%** |
+| tte_seconds.mae | 57.3±22.5 | **46.1±11.1** | **-20%** |
+| soc.picp_90 | 0.951 | 0.961±0.002 | +1pp |
+| soh.picp_90 | ~0.78 | 0.783±0.119 | 持平 |
+| log_tte.picp_90 | ~0.73 | 0.984±0.003 | 提升 |
+| physics.error | — | 0.180±0.019 | — |
+| epochs_run | ~50 | 28/46 | early stop |
+
+**改进归因**（推测）：hidden_dim 64→128 + elapsed_s 周期相位特征 + cosine LR schedule + grad_clip + pool=100k→150k。需 ablation 拆解。
+
+## 第二批 SOTA 启动（2026-08-12 19:13）
+
+- `sota_unordered_physics` seed 0/1 → `data/experiments/sota-v2-physics-s{0,1}`（pid 4962/4963）
+- `sota_tcn_unordered` seed 0/1 → `data/experiments/sota-tcn-s{0,1}`（pid 4964/4965）
+
+四进程同时跑，stdout 重定向到各自 stdout.log。预期 15-20h 完成。
+
+## 论文与图表产出
+
+- `paper_manuscript.md` 已更新 Abstract + Table 1 + 4.5 段
+- `data/experiments/runtime_capture/figures/calibration.png`（313KB）+ `physics_consistency.png`（236KB）已生成
+
 ## 论文最终框架（2026-08-11 确立）
 
 **"Design choices for joint probabilistic battery state prediction: simple flexible methods outperform construction-constrained ones"**

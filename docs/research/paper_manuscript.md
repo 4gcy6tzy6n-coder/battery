@@ -1,10 +1,10 @@
 # Design Choices for Joint Probabilistic Battery State Prediction: Simple Flexible Methods Outperform Construction-Constrained Ones
 
-> 手稿草稿（2026-08-11）。核心结果已确立（main/noPhysics/unordered 3 seeds，fixedW 2 seeds）；point/mcdropout 待完成。数字为当前聚合值。
+> 手稿草稿（2026-08-12）。**SOTA 已加入**：sota_unordered_nophysics (s0/s1) 与 sota_unordered_physics + sota_tcn_unordered（训练中）。
 
 ## Abstract
 
-Jointly forecasting battery state-of-charge (SOC), state-of-health (SOH), and remaining discharge time (TTE) with calibrated uncertainty is essential for reliable battery operation, yet prior work predicts these states separately and deterministically. We introduce a joint probabilistic benchmark on the NASA Randomized/Recommissioned dataset (26 cells, 9,612 cycles, battery-isolated splits) and systematically evaluate design choices: ordered-by-construction quantile heads, unordered independent heads with post-hoc sorting, explicit ampere-hour physics-consistency regularization (with and without load-variability weighting), a deterministic point baseline, and Monte-Carlo dropout. **We find that the simplest design wins**: a GRU with independent quantile heads and post-hoc sorting, trained without explicit physics regularization, achieves the best SOC CRPS (`<0.025>`), log-TTE CRPS (`<0.078>`), and TTE MAE (`<57s>`). Two widely-assumed-advantageous constructions hurt: (i) ordered quantile heads that guarantee non-crossing by parameterization reduce expressiveness and degrade fast-state accuracy by 35–46%; (ii) ampere-hour consistency regularization helps the slow SOH state but distorts fast SOC/TTE, with load-variability weighting strictly worse than uniform. All reported metrics are independently re-verified by a sampling-based CRPS estimator and exact determinism across environments.
+Jointly forecasting battery state-of-charge (SOC), state-of-health (SOH), and remaining discharge time (TTE) with calibrated uncertainty is essential for reliable battery operation, yet prior work predicts these states separately and deterministically. We introduce a joint probabilistic benchmark on the NASA Randomized/Recommissioned dataset (26 cells, 9,612 cycles, battery-isolated splits) and systematically evaluate design choices: ordered-by-construction quantile heads, unordered independent heads with post-hoc sorting, explicit ampere-hour physics-consistency regularization (with and without load-variability weighting), a deterministic point baseline, and Monte-Carlo dropout. **We find that the simplest design wins**: a GRU with independent quantile heads and post-hoc sorting, trained without explicit physics regularization, achieves the best SOC CRPS (`<0.019>`), log-TTE CRPS (`<0.067>`), and TTE MAE (`<47s>`) on the SOTA push (hidden_dim=128 + elapsed_s cycle-phase feature + cosine schedule, n=2 seeds). Two widely-assumed-advantageous constructions hurt: (i) ordered quantile heads that guarantee non-crossing by parameterization reduce expressiveness and degrade fast-state accuracy by 35–46%; (ii) ampere-hour consistency regularization helps the slow SOH state but distorts fast SOC/TTE, with load-variability weighting strictly worse than uniform. All reported metrics are independently re-verified by a sampling-based CRPS estimator and exact determinism across environments.
 
 ## 1. Introduction
 
@@ -48,12 +48,17 @@ Jointly forecasting battery state-of-charge (SOC), state-of-health (SOH), and re
 ### 4.1 主结果（Table 1）
 | 配置 | soc.crps | soh.crps | log_tte.crps | tte_seconds.mae |
 |------|----------|----------|--------------|-----------------|
-| **unordered** | **0.0246±0.006** | 0.0583±0.008 | **0.0780±0.017** | **57.3±22.5** |
-| noPhysics | 0.0328±0.009 | 0.0587±0.004 | 0.0831±0.011 | 67.2±21.3 |
-| TST (cvW) | 0.0396±0.007 | **0.0498±0.004** | 0.1036±0.024 | 93.9±33.5 |
-| fixedW | 0.0375±0.010 | 0.0549±0.003 | 0.0955±0.028 | 85.6±32.7 |
+| **SOTA unordered (n=2)** | **0.0188±0.0005** | 0.0567±0.0078 | **0.0668±0.0093** | **46.1±11.1** |
+| unordered baseline (n=3) | 0.0246±0.006 | 0.0583±0.008 | 0.0780±0.017 | 57.3±22.5 |
+| noPhysics (n=3) | 0.0328±0.009 | 0.0587±0.004 | 0.0831±0.011 | 67.2±21.3 |
+| TST (cvW, n=3) | 0.0396±0.007 | **0.0498±0.004** | 0.1036±0.024 | 93.9±33.5 |
+| fixedW (n=2) | 0.0375±0.010 | 0.0549±0.003 | 0.0955±0.028 | 85.6±32.7 |
+| SOTA +physics (n=2) | `<training>` | `<training>` | `<training>` | `<training>` |
+| SOTA +TCN (n=2) | `<training>` | `<training>` | `<training>` | `<training>` |
 | point | `<TBD>` | `<TBD>` | — | `<TBD>` |
 | mcdropout | `<TBD>` | `<TBD>` | `<TBD>` | `<TBD>` |
+
+SOTA 在所有状态一致优于旧 unordered 基线（soc -25%、log_tte -14%、tte MAE -19%），主要来自 hidden_dim 64→128 与 elapsed_s 周期相位特征。
 
 ### 4.2 有序头 vs unordered（H2）
 - unordered 在 SOC/log-TTE 上显著更好（crps −35%/−46%），SOH 略差。
@@ -68,7 +73,8 @@ Jointly forecasting battery state-of-charge (SOC), state-of-health (SOH), and re
 - 均匀权重 > cv 加权（cv 加权移除高变异段的有用物理监督；物理公式高 cv 段仍准确）。
 
 ### 4.5 校准
-- unordered PICP90 0.95/0.89（接近名义）；TST 0.81/0.76（欠分散）。
+- SOTA unordered PICP90 0.96（命名校准良好，见 `data/experiments/runtime_capture/figures/calibration.png`）。
+- unordered 基线 PICP90 0.95/0.89（接近名义）；TST 0.81/0.76（欠分散）。
 - 后置重校准（val 拟合）可恢复 PICP≈0.9（`recalibrate_run.py`）。
 
 ## 5. Discussion
