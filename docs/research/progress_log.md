@@ -164,6 +164,21 @@
 
 **禁止行为**：在 cron 触发前不要前台轮询；不要杀后台进程；不要重启训练。
 
+## Cron 频率升级 + ABORT 验证（2026-08-12 06:40）
+
+Cron 升级为每小时 :37（job `89784f00`），prompt 调用 `bash scripts/run_sota_postprocess.sh`：
+- 结果未落地 → ABORT + 进程 cputime/etime，等下次
+- 结果落地 → 完整重校准/复核/聚合/更新论文/commit+push 流程
+
+**ABORT 分支实测**（无 results.json 时）：
+```
+ABORT: results.json missing in s0 or s1 — try next cron tick.
+  PID  ELAPSED      TIME
+85694 14:40:15 440:54.98
+85695 14:40:15 442:08.50
+```
+脚本逻辑正确。
+
 ## 论文最终框架（2026-08-11 确立）
 
 **"Design choices for joint probabilistic battery state prediction: simple flexible methods outperform construction-constrained ones"**
