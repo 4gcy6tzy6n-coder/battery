@@ -179,6 +179,21 @@ ABORT: results.json missing in s0 or s1 — try next cron tick.
 ```
 脚本逻辑正确。
 
+## s0 完成（2026-08-12 16:12，cron `b030dd3b` 触发发现）
+
+| 指标 | s0 SOTA | 旧 unordered 基线 |
+|------|---------|-----------------|
+| soc.crps | **0.0191** | 0.025 |
+| soh.crps | 0.0511 | 0.058 |
+| log_tte.crps | **0.0734** | 0.078 |
+| tte_seconds.mae | **53.9s** | 57s |
+| physics.error | 0.1667 | — |
+| epochs_run | 28（early stop）| 50+ |
+
+s0 早停于 28 epoch（val 6+ epoch 无改善），达到 SOTA。**新 SOTA 全面优于旧 unordered 基线**，最大改进在 soc.crps（-24%）与 tte MAE。
+
+s1（pid 85695）仍在跑，ELAPSED 18h46m，cputime 902:27。等两边齐再做完整重校准/复核/聚合/推送。
+
 ## 论文最终框架（2026-08-11 确立）
 
 **"Design choices for joint probabilistic battery state prediction: simple flexible methods outperform construction-constrained ones"**
