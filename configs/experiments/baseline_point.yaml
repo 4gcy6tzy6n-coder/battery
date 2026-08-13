@@ -1,0 +1,29 @@
+# Baseline: deterministic point regression (MSE) with the same encoder.
+dataset_root: data/processed/nasa-randomized-full
+split_seed: 2026
+fast_length: 128
+history_length: 8
+stride: 10
+training_pool: 100000
+
+hidden_dim: 64
+num_layers: 2
+dropout: 0.1
+num_quantiles: 19
+head_mode: point
+
+batch_size: 64
+learning_rate: 0.001
+weight_decay: 0.00001
+max_epochs: 50
+early_stop_patience: 6
+lr_patience: 3
+seed: 0
+device: cpu
+
+physics_weight: 0.0
+cv_weighted: true
+normalize_by_target_scale: true
+
+mc_samples: 0
+eval_batch_size: 512

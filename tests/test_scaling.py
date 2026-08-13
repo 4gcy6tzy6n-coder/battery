@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 from tristatelite.data.scaling import fit_scaler, transform_features
 
@@ -31,3 +32,41 @@ def test_scaler_uses_only_supplied_training_values_and_preserves_missingness_fla
     assert transformed["voltage_v"].min() == 10.0
     assert transformed["temperature_c"].iloc[0] == 0.0
     assert transformed["temperature_available"].tolist() == [False, True]
+
+
+def test_suffixed_scaling_preserves_raw_physical_values():
+    train = pd.DataFrame(
+        {
+            "battery_id": ["battery00"] * 5,
+            "voltage_v": [-2.0, -1.0, 0.0, 1.0, 2.0],
+            "temperature_c": [20.0, np.nan, 22.0, 24.0, 26.0],
+            "temperature_available": [True, False, True, True, True],
+        }
+    )
+    held_out = pd.DataFrame(
+        {
+            "battery_id": ["battery20", "battery20"],
+            "voltage_v": [100.0, 101.0],
+            "temperature_c": [np.nan, 120.0],
+            "temperature_available": [False, True],
+        }
+    )
+    artifact = fit_scaler(train, ["voltage_v", "temperature_c"])
+
+    transformed = transform_features(held_out, artifact, output_suffix="__scaled")
+
+    assert transformed["voltage_v"].tolist() == [100.0, 101.0]
+    assert transformed["voltage_v__scaled"].tolist() == [10.0, 10.0]
+    assert transformed["temperature_c"].isna().iloc[0]
+    assert transformed["temperature_c__scaled"].iloc[0] == 0.0
+    assert transformed["temperature_available"].tolist() == [False, True]
+
+
+def test_scaler_rejects_a_missing_source_feature():
+    artifact = {
+        "features": {"missing": {"median": 0.0, "iqr": 1.0}},
+        "clip": [-10.0, 10.0],
+    }
+
+    with pytest.raises(ValueError, match="missing source feature"):
+        transform_features(pd.DataFrame({"present": [1.0]}), artifact, output_suffix="__scaled")

@@ -22,6 +22,15 @@ discharge. No sample uses a future observation to fill an earlier timestamp.
 | `tte_seconds` | s | Remaining observed discharge time; zero at cycle end. |
 | `log_tte_target` | — | `log1p(tte_seconds)`. |
 | `q_ref_ah` | Ah | Median delivered Ah of the earliest three valid calibration cycles, or an explicit global reference. |
+| `temperature_delta_1s` | °C | Backward one-second battery-temperature difference. |
+| `i_eff_60s` | A | Causal mean discharge current over at most the latest 60 samples. |
+| `current_cv_60s` | — | Causal 60-s current standard deviation divided by `abs(i_eff_60s) + 1e-3`. |
+| `<feature>__scaled` | — | Training-battery median/IQR transformation of a continuous model feature, clipped to `[-10, 10]`; the unit-bearing source is preserved. |
 
 Cycle summaries describe completed cycles. A summary carrying cycle index `k` is
 eligible only for a prediction from a cycle with index greater than `k`.
+
+Window items keep learned inputs and physical supervision separate. `fast_x` uses
+the configured `__scaled` fields plus the Boolean temperature-availability mask.
+The named `physics` mapping contains unscaled `i_eff_60s`, `current_cv_60s`, and
+`q_ref_ah`; these values are never read from scaled model channels.

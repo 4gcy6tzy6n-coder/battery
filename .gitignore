@@ -12,3 +12,5 @@ data/processed/
 data/manifests/*.json
 data/manifests/*.md
 data/manifests/*.csv
+data/experiments/
+.codegraph/

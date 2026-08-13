@@ -30,9 +30,14 @@ def fit_scaler(train: pd.DataFrame, features: list[str]) -> dict[str, object]:
 
 
 def transform_features(
-    frame: pd.DataFrame, artifact: Mapping[str, object]
+    frame: pd.DataFrame,
+    artifact: Mapping[str, object],
+    *,
+    output_suffix: str | None = None,
 ) -> pd.DataFrame:
     """Impute with frozen training medians, robust-scale, and clip."""
+    if output_suffix is not None and not output_suffix:
+        raise ValueError("output_suffix must be non-empty when provided")
     result = frame.copy()
     fitted = artifact["features"]
     if not isinstance(fitted, Mapping):
@@ -40,10 +45,14 @@ def transform_features(
     clip = artifact.get("clip", [-10.0, 10.0])
     lower, upper = (float(value) for value in clip)
     for feature, raw_stats in fitted.items():
+        source = str(feature)
+        if source not in result:
+            raise ValueError(f"missing source feature: {source}")
         if not isinstance(raw_stats, Mapping):
             raise TypeError(f"invalid scaler statistics for {feature}")
         median = float(raw_stats["median"])
         iqr = max(float(raw_stats["iqr"]), 1e-6)
-        values = pd.to_numeric(result[str(feature)], errors="coerce").fillna(median)
-        result[str(feature)] = np.clip((values - median) / iqr, lower, upper)
+        values = pd.to_numeric(result[source], errors="coerce").fillna(median)
+        destination = source if output_suffix is None else f"{source}{output_suffix}"
+        result[destination] = np.clip((values - median) / iqr, lower, upper)
     return result

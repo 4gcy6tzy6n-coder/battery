@@ -98,6 +98,10 @@ def test_build_cli_writes_partitioned_leakage_audited_artifacts(tmp_path: Path):
     assert expected.issubset({path.name for path in output.iterdir()})
     samples = pd.read_parquet(output / "samples")
     assert not samples.duplicated(["battery_id", "cycle_id", "timestamp_s"]).any()
+    assert samples["current_a"].eq(1.0).all()
+    assert "current_a__scaled" in samples
+    assert samples["i_eff_60s"].eq(1.0).all()
+    assert samples["current_cv_60s"].eq(0.0).all()
     manifest = json.loads((output / "split_manifest.json").read_text())
     split_sets = [set(manifest[f"{name}_batteries"]) for name in ("train", "val", "test")]
     assert not split_sets[0] & split_sets[1]
@@ -110,3 +114,10 @@ def test_build_cli_writes_partitioned_leakage_audited_artifacts(tmp_path: Path):
     report = json.loads((output / "build_report.json").read_text())
     assert report["limited"] is True
     assert report["accepted_cycle_count"] == 18
+    assert set(report["physical_ranges"]) == {
+        "current_a",
+        "i_eff_60s",
+        "current_cv_60s",
+        "q_ref_ah",
+    }
+    assert "current_a__scaled" in report["scaled_feature_ranges"]

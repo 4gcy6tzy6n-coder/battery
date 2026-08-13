@@ -3,6 +3,7 @@ import pytest
 
 from tristatelite.data.audit import audit_leakage
 from tristatelite.data.split import make_group_split
+from tristatelite.data.windows import MODEL_FEATURES
 
 BATTERIES = [f"battery{index:02d}" for index in range(26)]
 
@@ -56,6 +57,35 @@ def test_leakage_audit_accepts_battery_inheritance_and_past_only_history():
 
     assert report["status"] == "passed"
     assert report["battery_overlap_count"] == 0
+
+
+def test_leakage_audit_accepts_safe_scaled_model_features():
+    manifest = make_group_split(BATTERIES)
+    samples, history = _audit_frames(manifest)
+
+    report = audit_leakage(
+        manifest,
+        samples,
+        history,
+        set(manifest.train_batteries),
+        model_feature_names=list(MODEL_FEATURES),
+    )
+
+    assert report["model_feature_count"] == len(MODEL_FEATURES)
+
+
+def test_leakage_audit_rejects_a_target_as_model_input():
+    manifest = make_group_split(BATTERIES)
+    samples, history = _audit_frames(manifest)
+
+    with pytest.raises(ValueError, match="forbidden model feature"):
+        audit_leakage(
+            manifest,
+            samples,
+            history,
+            set(manifest.train_batteries),
+            model_feature_names=["voltage_v__scaled", "soc_target"],
+        )
 
 
 @pytest.mark.parametrize(
