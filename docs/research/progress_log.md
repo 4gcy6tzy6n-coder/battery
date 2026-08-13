@@ -239,6 +239,35 @@ s1 落地 18:11，epochs_run=46。两边齐，跑完 `run_sota_postprocess.sh`�
 - `paper_manuscript.md` 已更新 Abstract + Table 1 + 4.5 段
 - `data/experiments/runtime_capture/figures/calibration.png`（313KB）+ `physics_consistency.png`（236KB）已生成
 
+## 第二批 SOTA 全部完成（2026-08-13 23:30）
+
+4 个训练全部落地：TCN s0 (59ep) / s1 (40ep)、physics s0 (60ep) / s1 (32ep)。
+
+### 完整 SOTA 对比表（n=2 each）
+
+| 指标 | SOTA GRU noPhysics | SOTA TCN | SOTA GRU +physics |
+|------|-------------------|----------|-------------------|
+| soc.crps | **0.0188±0.0005** | 0.0206±0.0017 | 0.0222±0.0031 |
+| soh.crps | 0.0567±0.0078 | **0.0469±0.0006** | 0.0661±0.0180 |
+| log_tte.crps | **0.0668±0.0093** | 0.0700±0.0021 | 0.1202±0.0707 |
+| tte_seconds.mae | **46.1±11.1** | 54.0±4.9 | 100.7±69.6 |
+| physics.error | **0.180** | 0.215 | 0.242 |
+
+### 三个结论
+
+1. **GRU noPhysics 仍整体最优**：soc/log_tte/tte MAE 全面第一，与"简单设计胜出"叙事一致。
+2. **TCN 编码器在 SOH 上显著最优**（0.0469 vs 0.0567，**-17%**），且 std 极小——TCN 感受野+并行结构适合慢变状态；快状态略逊 GRU。
+3. **physics 损失在 SOTA 基础上确认有害 + 训练不稳定**：
+   - 快状态全面变差（log_tte.crps 0.120 vs 0.067；tte MAE 100.7s vs 46.1s）
+   - **seed0 跑满 60 epoch 灾难性退化**（tte MAE 149.9s、physics.error 0.33），seed1 早停 32ep 正常（51.5s）——物理损失梯度存在发散路径
+   - physics.error 反而更高（0.242 vs 0.180），显式物理监督未改善自洽性
+
+### 论文更新
+
+- `paper_manuscript.md`：Table 1 填真实数字、新增 §4.6（编码器 + 物理正则 SOTA 发现）
+- figures：`docs/research/figures/calibration_sota_all.png` + `physics_consistency_sota_all.png`
+- 聚合表：`data/experiments/runtime_capture/aggregate_all_sota.md`
+
 ## 论文最终框架（2026-08-11 确立）
 
 **"Design choices for joint probabilistic battery state prediction: simple flexible methods outperform construction-constrained ones"**

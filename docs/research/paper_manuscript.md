@@ -48,17 +48,28 @@ Jointly forecasting battery state-of-charge (SOC), state-of-health (SOH), and re
 ### 4.1 主结果（Table 1）
 | 配置 | soc.crps | soh.crps | log_tte.crps | tte_seconds.mae |
 |------|----------|----------|--------------|-----------------|
-| **SOTA unordered (n=2)** | **0.0188±0.0005** | 0.0567±0.0078 | **0.0668±0.0093** | **46.1±11.1** |
+| **SOTA unordered GRU (n=2)** | **0.0188±0.0005** | 0.0567±0.0078 | **0.0668±0.0093** | **46.1±11.1** |
 | unordered baseline (n=3) | 0.0246±0.006 | 0.0583±0.008 | 0.0780±0.017 | 57.3±22.5 |
 | noPhysics (n=3) | 0.0328±0.009 | 0.0587±0.004 | 0.0831±0.011 | 67.2±21.3 |
 | TST (cvW, n=3) | 0.0396±0.007 | **0.0498±0.004** | 0.1036±0.024 | 93.9±33.5 |
 | fixedW (n=2) | 0.0375±0.010 | 0.0549±0.003 | 0.0955±0.028 | 85.6±32.7 |
-| SOTA +physics (n=2) | `<training>` | `<training>` | `<training>` | `<training>` |
-| SOTA +TCN (n=2) | `<training>` | `<training>` | `<training>` | `<training>` |
+| SOTA +TCN (n=2) | 0.0206±0.0017 | **0.0469±0.0006** | 0.0700±0.0021 | 54.0±4.9 |
+| SOTA +physics (n=2) | 0.0222±0.0031 | 0.0661±0.0180 | 0.1202±0.0707 | 100.7±69.6 |
 | point | `<TBD>` | `<TBD>` | — | `<TBD>` |
 | mcdropout | `<TBD>` | `<TBD>` | `<TBD>` | `<TBD>` |
 
-SOTA 在所有状态一致优于旧 unordered 基线（soc -25%、log_tte -14%、tte MAE -19%），主要来自 hidden_dim 64→128 与 elapsed_s 周期相位特征。
+SOTA GRU 在所有状态一致优于旧 unordered 基线（soc -25%、log_tte -14%、tte MAE -19%），主要来自 hidden_dim 64→128 与 elapsed_s 周期相位特征。
+
+### 4.6 编码器与物理正则的新发现（SOTA 基础，2026-08-13）
+
+**TCN 编码器**：SOH 显著最优（crps 0.0469±0.0006 vs GRU 0.0567，**-17%**），且种子间方差极小；SOC/log-TTE 略差于 GRU。TCN 的时间感受野与并行结构在慢变状态（SOH）上优势明显。
+
+**物理一致性损失（SOTA +physics）确认有害且训练不稳定**：
+- 快状态全面变差：soc.crps 0.0222 vs 0.0188、log_tte.crps 0.120 vs 0.067、tte MAE 100.7s vs 46.1s
+- **不稳定**：seed0 跑满 60 epoch（无早停）后严重退化（tte MAE 149.9s、physics.error 0.33）；seed1 早停于 32 epoch 结果正常（51.5s）。物理损失梯度使训练出现灾难性发散路径。
+- physics.error 反而更高（0.242 vs noPhysics 0.180）——显式物理监督未改善自洽性。
+
+**综合结论强化**：最简单的设计（GRU + 独立分位头 + 后置排序，无显式物理正则）整体最优；TCN 编码器是 SOH 的针对性改进选项。
 
 ### 4.2 有序头 vs unordered（H2）
 - unordered 在 SOC/log-TTE 上显著更好（crps −35%/−46%），SOH 略差。
